@@ -31,6 +31,9 @@ src/
 │   └── services/        # Data / business logic
 ├── types/               # Shared TypeScript types
 └── validations/         # Zod schemas
+prisma/
+├── schema.prisma        # Database models
+└── migrations/          # SQL migrations
 ```
 
 ## Getting started
@@ -38,17 +41,28 @@ src/
 ```bash
 npm install
 cp .env.example .env
+# Set DATABASE_URL in .env (Neon, Supabase, or local Postgres)
+npm run db:migrate
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### Database commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run db:migrate` | Apply migrations (development) |
+| `npm run db:migrate:deploy` | Apply migrations (production) |
+| `npm run db:push` | Push schema without migration files |
+| `npm run db:studio` | Open Prisma Studio |
 
 ## Build roadmap
 
 | Day | Focus |
 |-----|--------|
 | 1 | ✅ Project init & structure |
-| 2 | Prisma + PostgreSQL schema |
+| 2 | ✅ Prisma + PostgreSQL schema |
 | 3 | Auth.js setup |
 | 4 | Sign up / sign in |
 | 5 | Landing page polish |
