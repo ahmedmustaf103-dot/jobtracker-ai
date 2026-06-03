@@ -4,7 +4,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
       <p className="mb-3 text-sm font-medium text-indigo-600 dark:text-indigo-400">
-        Day 1 — Project initialized
+        10-day build · Day 2 complete
       </p>
       <h1 className="max-w-xl text-4xl font-bold tracking-tight sm:text-5xl">
         {siteConfig.name}
@@ -13,7 +13,7 @@ export default function HomePage() {
         {siteConfig.description}
       </p>
       <p className="mt-8 text-sm text-zinc-500">
-        Auth, database, and dashboard ship in upcoming daily commits.
+        Database schema ready. Auth and dashboard ship in the next 8 daily commits.
       </p>
     </div>
   );

@@ -1,6 +1,6 @@
 # JobTracker AI
 
-SaaS for tracking job applications — built over **14 days** (1 commit/day).
+SaaS for tracking job applications — built over **10 days** (1 commit/day).
 
 ## Stack
 
@@ -8,7 +8,7 @@ SaaS for tracking job applications — built over **14 days** (1 commit/day).
 - **TypeScript**
 - **Tailwind CSS**
 - PostgreSQL + Prisma *(Day 2)*
-- Auth.js *(Day 3–4)*
+- Auth.js *(Day 3)*
 
 ## Project structure
 
@@ -16,8 +16,8 @@ SaaS for tracking job applications — built over **14 days** (1 commit/day).
 src/
 ├── app/
 │   ├── (marketing)/     # Public pages
-│   ├── (auth)/          # Login & register (Day 4)
-│   ├── (dashboard)/     # Protected app (Day 6+)
+│   ├── (auth)/          # Login & register (Day 3)
+│   ├── (dashboard)/     # Protected app (Day 4+)
 │   └── api/             # Route handlers (Day 3+)
 ├── components/
 │   ├── ui/              # Buttons, inputs, cards
@@ -57,24 +57,22 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run db:push` | Push schema without migration files |
 | `npm run db:studio` | Open Prisma Studio |
 
-## Build roadmap
+## Build roadmap (10 days · 1 commit/day)
 
-| Day | Focus |
-|-----|--------|
-| 1 | ✅ Project init & structure |
-| 2 | ✅ Prisma + PostgreSQL schema |
-| 3 | Auth.js setup |
-| 4 | Sign up / sign in |
-| 5 | Landing page polish |
-| 6 | Dashboard shell |
-| 7 | Dashboard stats + seed |
-| 8 | Applications list |
-| 9 | Create application |
-| 10 | Edit application |
-| 11 | Delete & status updates |
-| 12 | Settings |
-| 13 | Production prep |
-| 14 | Deploy |
+| Day | Focus | Commit message (example) |
+|-----|--------|---------------------------|
+| 1 | ✅ Project init & structure | `chore: initialize jobtracker-ai project` |
+| 2 | ✅ Prisma + PostgreSQL schema | `feat(db): add schema and initial migration` |
+| 3 | Auth.js + sign up / sign in | `feat(auth): add auth and credentials flow` |
+| 4 | Landing polish + dashboard shell | `feat: add landing page and dashboard layout` |
+| 5 | Dashboard stats + applications list | `feat(dashboard): add overview and applications list` |
+| 6 | Create & edit applications | `feat(applications): add create and edit flows` |
+| 7 | Delete, status updates & filters | `feat(applications): add delete and status workflow` |
+| 8 | Settings & profile | `feat(settings): add profile settings page` |
+| 9 | Production prep (build, docs, polish) | `chore: prepare for production deployment` |
+| 10 | Deploy to Vercel | `chore: deploy to vercel` |
+
+**Compressed from 14 days:** auth (3+4), layout (5+6), list+stats (7+8), CRUD split (9–11 → 6–7), ship (13–14 → 9–10).
 
 ## License
 
