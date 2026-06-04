@@ -41,7 +41,7 @@ prisma/
 ```bash
 npm install
 cp .env.example .env
-# Set DATABASE_URL in .env (Neon, Supabase, or local Postgres)
+# Set DATABASE_URL, AUTH_SECRET, AUTH_URL in .env
 npm run db:migrate
 npm run dev
 ```
@@ -63,7 +63,7 @@ Open [http://localhost:3000](http://localhost:3000).
 |-----|--------|---------------------------|
 | 1 | ✅ Project init & structure | `chore: initialize jobtracker-ai project` |
 | 2 | ✅ Prisma + PostgreSQL schema | `feat(db): add schema and initial migration` |
-| 3 | Auth.js + sign up / sign in | `feat(auth): add auth and credentials flow` |
+| 3 | ✅ Auth.js + sign up / sign in | `feat(auth): add auth and credentials flow` |
 | 4 | Landing polish + dashboard shell | `feat: add landing page and dashboard layout` |
 | 5 | Dashboard stats + applications list | `feat(dashboard): add overview and applications list` |
 | 6 | Create & edit applications | `feat(applications): add create and edit flows` |
