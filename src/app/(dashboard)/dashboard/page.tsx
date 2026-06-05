@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
+import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { getSession } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
@@ -12,15 +12,16 @@ export default async function DashboardPage() {
   const firstName = session?.user?.name?.split(" ")[0] ?? "there";
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Welcome, {firstName}</h1>
-      <p className="text-zinc-600 dark:text-zinc-400">
-        You are signed in as {session?.user?.email}. Full dashboard UI ships on
-        Day 4.
-      </p>
-      <Link href="/" className="text-sm font-medium text-indigo-600">
-        ← Back to home
-      </Link>
+    <div className="space-y-8">
+      <DashboardHeader
+        title={`Welcome, ${firstName}`}
+        description="Your job search command center. Stats and applications ship on Day 5."
+      />
+      <div className="rounded-xl border border-dashed border-zinc-200 py-16 text-center dark:border-zinc-700">
+        <p className="text-sm text-zinc-500">
+          Dashboard widgets will appear here in the next commit.
+        </p>
+      </div>
     </div>
   );
 }
