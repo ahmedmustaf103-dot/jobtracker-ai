@@ -56,6 +56,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run db:migrate:deploy` | Apply migrations (production) |
 | `npm run db:push` | Push schema without migration files |
 | `npm run db:studio` | Open Prisma Studio |
+| `npm run db:seed` | Seed demo user + sample applications |
 
 ## Build roadmap (10 days · 1 commit/day)
 
@@ -65,7 +66,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | 2 | ✅ Prisma + PostgreSQL schema | `feat(db): add schema and initial migration` |
 | 3 | ✅ Auth.js + sign up / sign in | `feat(auth): add auth and credentials flow` |
 | 4 | ✅ Landing polish + dashboard shell | `feat: add landing page and dashboard layout` |
-| 5 | Dashboard stats + applications list | `feat(dashboard): add overview and applications list` |
+| 5 | ✅ Dashboard stats + applications list | `feat(dashboard): add overview and applications list` |
 | 6 | Create & edit applications | `feat(applications): add create and edit flows` |
 | 7 | Delete, status updates & filters | `feat(applications): add delete and status workflow` |
 | 8 | Settings & profile | `feat(settings): add profile settings page` |
