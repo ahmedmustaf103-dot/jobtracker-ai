@@ -67,7 +67,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | 3 | ✅ Auth.js + sign up / sign in | `feat(auth): add auth and credentials flow` |
 | 4 | ✅ Landing polish + dashboard shell | `feat: add landing page and dashboard layout` |
 | 5 | ✅ Dashboard stats + applications list | `feat(dashboard): add overview and applications list` |
-| 6 | Create & edit applications | `feat(applications): add create and edit flows` |
+| 6 | ✅ Create & edit applications | `feat(applications): add create and edit flows` |
 | 7 | Delete, status updates & filters | `feat(applications): add delete and status workflow` |
 | 8 | Settings & profile | `feat(settings): add profile settings page` |
 | 9 | Production prep (build, docs, polish) | `chore: prepare for production deployment` |

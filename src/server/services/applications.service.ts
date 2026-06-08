@@ -49,3 +49,56 @@ export type CreateApplicationInput = Pick<
   Prisma.JobApplicationCreateInput,
   "company" | "title" | "location" | "url" | "status" | "salary" | "notes"
 >;
+
+export async function getApplicationById(userId: string, id: string) {
+  return prisma.jobApplication.findFirst({
+    where: { id, userId },
+  });
+}
+
+export async function createApplication(
+  userId: string,
+  data: CreateApplicationInput,
+) {
+  return prisma.jobApplication.create({
+    data: {
+      company: data.company,
+      title: data.title,
+      location: data.location,
+      url: data.url,
+      status: data.status ?? "WISHLIST",
+      salary: data.salary,
+      notes: data.notes,
+      appliedAt: data.status === "APPLIED" ? new Date() : undefined,
+      user: { connect: { id: userId } },
+    },
+  });
+}
+
+export async function updateApplication(
+  userId: string,
+  id: string,
+  data: CreateApplicationInput,
+) {
+  const existing = await getApplicationById(userId, id);
+  if (!existing) return null;
+
+  const appliedAt =
+    data.status === "APPLIED" && !existing.appliedAt
+      ? new Date()
+      : existing.appliedAt;
+
+  return prisma.jobApplication.update({
+    where: { id },
+    data: {
+      company: data.company,
+      title: data.title,
+      location: data.location,
+      url: data.url,
+      status: data.status,
+      salary: data.salary,
+      notes: data.notes,
+      appliedAt,
+    },
+  });
+}

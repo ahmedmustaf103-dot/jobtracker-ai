@@ -24,7 +24,7 @@ export function RecentApplications({ applications }: RecentApplicationsProps) {
           <div className="rounded-lg border border-dashed border-zinc-200 py-10 text-center dark:border-zinc-700">
             <p className="text-sm text-zinc-500">No applications yet.</p>
             <p className="mt-2 text-xs text-zinc-400">
-              Add applications on Day 6, or run the seed script to load demo data.
+              Add applications from the Applications page.
             </p>
           </div>
         ) : (

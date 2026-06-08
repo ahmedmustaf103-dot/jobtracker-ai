@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { DashboardHeader } from "@/components/layout/dashboard-header";
+import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
 import { getSession } from "@/lib/auth/session";
 import { APPLICATION_STATUS_LABELS } from "@/types";
@@ -25,14 +27,18 @@ export default async function ApplicationsPage() {
       <DashboardHeader
         title="Applications"
         description="All roles you are tracking."
-      />
+      >
+        <Button asChild size="sm">
+          <Link href="/applications/new">Add application</Link>
+        </Button>
+      </DashboardHeader>
 
       {applications.length === 0 ? (
         <div className="rounded-xl border border-dashed border-zinc-200 py-16 text-center dark:border-zinc-700">
           <p className="text-sm text-zinc-500">No applications yet.</p>
-          <p className="mt-2 text-xs text-zinc-400">
-            Create and edit flows ship on Day 6. Run <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">npm run db:seed</code> for demo data.
-          </p>
+          <Button asChild className="mt-4" size="sm">
+            <Link href="/applications/new">Add your first role</Link>
+          </Button>
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
@@ -43,6 +49,9 @@ export default async function ApplicationsPage() {
                 <th className="px-4 py-3 font-medium">Company</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Updated</th>
+                <th className="px-4 py-3 font-medium">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
@@ -57,6 +66,14 @@ export default async function ApplicationsPage() {
                   </td>
                   <td className="px-4 py-3 text-zinc-400">
                     {formatDate(app.updatedAt)}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Link
+                      href={`/applications/${app.id}/edit`}
+                      className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                    >
+                      Edit
+                    </Link>
                   </td>
                 </tr>
               ))}
