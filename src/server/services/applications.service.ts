@@ -8,9 +8,22 @@ export type ApplicationStats = {
   recent: Awaited<ReturnType<typeof listApplications>>;
 };
 
-export async function listApplications(userId: string, limit = 50) {
+type ListApplicationsOptions = {
+  limit?: number;
+  status?: ApplicationStatus;
+};
+
+export async function listApplications(
+  userId: string,
+  options: ListApplicationsOptions = {},
+) {
+  const { limit = 50, status } = options;
+
   return prisma.jobApplication.findMany({
-    where: { userId },
+    where: {
+      userId,
+      ...(status ? { status } : {}),
+    },
     orderBy: [{ updatedAt: "desc" }],
     take: limit,
   });
@@ -23,7 +36,7 @@ export async function getApplicationStats(userId: string): Promise<ApplicationSt
       where: { userId },
       _count: { status: true },
     }),
-    listApplications(userId, 5),
+    listApplications(userId, { limit: 5 }),
   ]);
 
   const byStatus = {
@@ -101,4 +114,31 @@ export async function updateApplication(
       appliedAt,
     },
   });
+}
+
+export async function updateApplicationStatus(
+  userId: string,
+  id: string,
+  status: ApplicationStatus,
+) {
+  const existing = await getApplicationById(userId, id);
+  if (!existing) return null;
+
+  const appliedAt =
+    status === "APPLIED" && !existing.appliedAt
+      ? new Date()
+      : existing.appliedAt;
+
+  return prisma.jobApplication.update({
+    where: { id },
+    data: { status, appliedAt },
+  });
+}
+
+export async function deleteApplication(userId: string, id: string) {
+  const existing = await getApplicationById(userId, id);
+  if (!existing) return false;
+
+  await prisma.jobApplication.delete({ where: { id } });
+  return true;
 }
