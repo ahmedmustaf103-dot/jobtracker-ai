@@ -69,7 +69,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | 5 | ✅ Dashboard stats + applications list | `feat(dashboard): add overview and applications list` |
 | 6 | ✅ Create & edit applications | `feat(applications): add create and edit flows` |
 | 7 | ✅ Delete, status updates & filters | `feat(applications): add delete and status workflow` |
-| 8 | Settings & profile | `feat(settings): add profile settings page` |
+| 8 | ✅ Settings & profile | `feat(settings): add profile settings page` |
 | 9 | Production prep (build, docs, polish) | `chore: prepare for production deployment` |
 | 10 | Deploy to Vercel | `chore: deploy to vercel` |
 
