@@ -2,13 +2,28 @@
 
 SaaS for tracking job applications — built over **10 days** (1 commit/day).
 
+Track every role from wishlist to offer: status pipeline, quick updates, filters, and a stats dashboard — behind email/password auth.
+
+## Features
+
+- **Auth** — email/password sign up & sign in (Auth.js v5, JWT sessions)
+- **Applications CRUD** — create, edit, delete roles with company, salary, notes
+- **Status workflow** — wishlist → applied → screening → interview → offer, with quick inline updates
+- **Filters** — filter the list by any status via URL params
+- **Dashboard** — totals, pipeline breakdown, recent activity
+- **Settings** — update display name, change password
+
 ## Stack
 
-- **Next.js 15** (App Router)
-- **TypeScript**
-- **Tailwind CSS**
-- PostgreSQL + Prisma *(Day 2)*
-- Auth.js *(Day 3)*
+| Layer | Technology |
+|--------|------------|
+| Framework | Next.js 15 (App Router, Server Actions) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Database | PostgreSQL |
+| ORM | Prisma 6 |
+| Auth | Auth.js (next-auth v5) |
+| Validation | Zod |
 
 ## Project structure
 
@@ -48,6 +63,19 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### Environment variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string (Neon, Supabase, or local) |
+| `AUTH_SECRET` | Yes | Session secret — generate with `openssl rand -base64 32` |
+| `AUTH_URL` | Yes | App URL (`http://localhost:3000` locally) |
+| `NEXT_PUBLIC_APP_URL` | No | Public URL used in site metadata |
+
+### Demo account
+
+After `npm run db:seed`: **demo@jobtracker.ai** / **password123** (3 sample applications).
+
 ### Database commands
 
 | Command | Description |
@@ -70,10 +98,25 @@ Open [http://localhost:3000](http://localhost:3000).
 | 6 | ✅ Create & edit applications | `feat(applications): add create and edit flows` |
 | 7 | ✅ Delete, status updates & filters | `feat(applications): add delete and status workflow` |
 | 8 | ✅ Settings & profile | `feat(settings): add profile settings page` |
-| 9 | Production prep (build, docs, polish) | `chore: prepare for production deployment` |
+| 9 | ✅ Production prep (build, docs, polish) | `chore: prepare for production deployment` |
 | 10 | Deploy to Vercel | `chore: deploy to vercel` |
 
 **Compressed from 14 days:** auth (3+4), layout (5+6), list+stats (7+8), CRUD split (9–11 → 6–7), ship (13–14 → 9–10).
+
+## Deployment (Vercel)
+
+1. Push the repo to GitHub and import it in [Vercel](https://vercel.com/new).
+2. Provision PostgreSQL (e.g. [Neon](https://neon.tech)) and copy the connection string.
+3. Set environment variables in Vercel:
+   - `DATABASE_URL` — your production Postgres URL
+   - `AUTH_SECRET` — `openssl rand -base64 32`
+   - `AUTH_URL` — your production URL (e.g. `https://jobtracker-ai.vercel.app`)
+4. Deploy. The build runs `prisma generate` automatically.
+5. Apply migrations against production:
+
+```bash
+DATABASE_URL="<production-url>" npx prisma migrate deploy
+```
 
 ## License
 
