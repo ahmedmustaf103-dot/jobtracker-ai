@@ -54,12 +54,12 @@ export function ChangePasswordForm() {
         />
       </div>
       {state.error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-red-400" role="alert">
           {state.error}
         </p>
       ) : null}
       {state.success ? (
-        <p className="text-sm text-green-600" role="status">
+        <p className="text-sm text-emerald-400" role="status">
           {state.success}
         </p>
       ) : null}

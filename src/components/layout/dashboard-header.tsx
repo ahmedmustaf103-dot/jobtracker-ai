@@ -10,13 +10,13 @@ export function DashboardHeader({
   children,
 }: DashboardHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 border-b border-white/[0.08] pb-6 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
+          {title}
+        </h1>
         {description ? (
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            {description}
-          </p>
+          <p className="mt-1 text-sm text-zinc-400">{description}</p>
         ) : null}
       </div>
       {children ? (

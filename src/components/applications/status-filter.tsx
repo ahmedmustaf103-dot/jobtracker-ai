@@ -45,8 +45,8 @@ function FilterLink({
       className={cn(
         "rounded-full px-3 py-1 text-xs font-medium transition-colors",
         active
-          ? "bg-indigo-600 text-white"
-          : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700",
+          ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-900/30"
+          : "bg-white/5 text-zinc-400 ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-zinc-100",
       )}
     >
       {children}

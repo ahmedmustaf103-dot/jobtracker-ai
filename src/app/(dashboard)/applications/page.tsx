@@ -54,8 +54,8 @@ export default async function ApplicationsPage({
       <StatusFilter activeStatus={activeStatus as ApplicationStatus | undefined} />
 
       {applications.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-200 py-16 text-center dark:border-zinc-700">
-          <p className="text-sm text-zinc-500">
+        <div className="rounded-xl border border-dashed border-white/10 py-16 text-center">
+          <p className="text-sm text-zinc-400">
             {activeStatus
               ? "No applications match this filter."
               : "No applications yet."}

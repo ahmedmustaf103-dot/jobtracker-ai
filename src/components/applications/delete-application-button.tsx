@@ -38,7 +38,7 @@ export function DeleteApplicationButton({
       type="button"
       onClick={handleDelete}
       disabled={pending}
-      className="text-sm font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
+      className="text-sm font-medium text-red-400 hover:text-red-300 disabled:opacity-50"
     >
       {pending ? "Deleting…" : "Delete"}
     </button>

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useActionState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,6 +11,9 @@ import {
 } from "@/server/actions/auth.actions";
 
 const initialState: AuthActionState = {};
+
+const inputClass =
+  "border-white/10 bg-white/[0.04] text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-violet-500";
 
 export function RegisterForm() {
   const [state, formAction, pending] = useActionState(
@@ -22,7 +24,9 @@ export function RegisterForm() {
   return (
     <form action={formAction} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="name">Full name</Label>
+        <Label htmlFor="name" className="text-zinc-300">
+          Full name
+        </Label>
         <Input
           id="name"
           name="name"
@@ -30,10 +34,13 @@ export function RegisterForm() {
           autoComplete="name"
           required
           placeholder="Jane Doe"
+          className={inputClass}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-zinc-300">
+          Email
+        </Label>
         <Input
           id="email"
           name="email"
@@ -41,10 +48,13 @@ export function RegisterForm() {
           autoComplete="email"
           required
           placeholder="you@company.com"
+          className={inputClass}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-zinc-300">
+          Password
+        </Label>
         <Input
           id="password"
           name="password"
@@ -53,19 +63,27 @@ export function RegisterForm() {
           required
           minLength={8}
           placeholder="At least 8 characters"
+          className={inputClass}
         />
       </div>
       {state.error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-red-400" role="alert">
           {state.error}
         </p>
       ) : null}
-      <Button type="submit" className="w-full" disabled={pending}>
+      <button
+        type="submit"
+        disabled={pending}
+        className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-900/40 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+      >
         {pending ? "Creating account…" : "Create account"}
-      </Button>
+      </button>
       <p className="text-center text-sm text-zinc-500">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-indigo-600">
+        <Link
+          href="/login"
+          className="font-medium text-violet-400 transition-colors hover:text-violet-300"
+        >
           Sign in
         </Link>
       </p>

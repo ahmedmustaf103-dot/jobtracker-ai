@@ -21,28 +21,28 @@ export function RecentApplications({ applications }: RecentApplicationsProps) {
       </CardHeader>
       <CardContent>
         {applications.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-zinc-200 py-10 text-center dark:border-zinc-700">
-            <p className="text-sm text-zinc-500">No applications yet.</p>
-            <p className="mt-2 text-xs text-zinc-400">
+          <div className="rounded-lg border border-dashed border-white/10 py-10 text-center">
+            <p className="text-sm text-zinc-400">No applications yet.</p>
+            <p className="mt-2 text-xs text-zinc-500">
               Add applications from the Applications page.
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
+          <ul className="divide-y divide-white/5">
             {applications.map((app) => (
               <li
                 key={app.id}
                 className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
-                  <p className="font-medium">{app.title}</p>
+                  <p className="font-medium text-zinc-100">{app.title}</p>
                   <p className="text-sm text-zinc-500">{app.company}</p>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium dark:bg-zinc-800">
+                  <span className="rounded-full bg-white/5 px-2.5 py-0.5 text-xs font-medium text-zinc-300 ring-1 ring-inset ring-white/10">
                     {APPLICATION_STATUS_LABELS[app.status]}
                   </span>
-                  <span className="text-zinc-400">{formatDate(app.updatedAt)}</span>
+                  <span className="text-zinc-500">{formatDate(app.updatedAt)}</span>
                 </div>
               </li>
             ))}

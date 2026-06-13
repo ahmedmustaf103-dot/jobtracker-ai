@@ -11,9 +11,9 @@ type ApplicationsTableProps = {
 
 export function ApplicationsTable({ applications }: ApplicationsTableProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
+    <div className="overflow-hidden rounded-xl border border-white/10">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50">
+        <thead className="border-b border-white/10 bg-white/[0.03] text-zinc-400">
           <tr>
             <th className="px-4 py-3 font-medium">Role</th>
             <th className="px-4 py-3 font-medium">Company</th>
@@ -24,22 +24,24 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-100 bg-white dark:divide-zinc-800 dark:bg-zinc-950">
+        <tbody className="divide-y divide-white/5">
           {applications.map((app) => (
-            <tr key={app.id}>
-              <td className="px-4 py-3 font-medium">{app.title}</td>
-              <td className="px-4 py-3 text-zinc-500">{app.company}</td>
+            <tr key={app.id} className="transition-colors hover:bg-white/[0.02]">
+              <td className="px-4 py-3 font-medium text-zinc-100">
+                {app.title}
+              </td>
+              <td className="px-4 py-3 text-zinc-400">{app.company}</td>
               <td className="px-4 py-3">
                 <ApplicationStatusSelect id={app.id} status={app.status} />
               </td>
-              <td className="px-4 py-3 text-zinc-400">
+              <td className="px-4 py-3 text-zinc-500">
                 {formatDate(app.updatedAt)}
               </td>
               <td className="px-4 py-3">
                 <div className="flex items-center justify-end gap-3">
                   <Link
                     href={`/applications/${app.id}/edit`}
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                    className="text-sm font-medium text-violet-400 hover:text-violet-300"
                   >
                     Edit
                   </Link>
