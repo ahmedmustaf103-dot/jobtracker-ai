@@ -6,6 +6,7 @@ import {
   Briefcase,
   LayoutDashboard,
   LogOut,
+  PenLine,
   Settings,
   Sparkles,
 } from "lucide-react";
@@ -17,6 +18,7 @@ import { signOutAction } from "@/server/actions/auth.actions";
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/applications", label: "Applications", icon: Briefcase },
+  { href: "/cover-letters", label: "Cover Letters", icon: PenLine },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ] as const;
 
