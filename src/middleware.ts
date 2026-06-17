@@ -11,6 +11,7 @@ export const config = {
     "/dashboard/:path*",
     "/applications/:path*",
     "/cover-letters/:path*",
+    "/resume-analyzer/:path*",
     "/login",
     "/register",
   ],

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Briefcase,
+  FileSearch,
   LayoutDashboard,
   LogOut,
   PenLine,
@@ -19,6 +20,7 @@ const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/applications", label: "Applications", icon: Briefcase },
   { href: "/cover-letters", label: "Cover Letters", icon: PenLine },
+  { href: "/resume-analyzer", label: "Resume Analyzer", icon: FileSearch },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ] as const;
 
@@ -59,7 +61,7 @@ export function DashboardSidebar() {
 
         <div className="mt-4 flex items-center gap-2 rounded-lg border border-dashed border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs text-violet-200">
           <Sparkles className="h-3.5 w-3.5 shrink-0" />
-          AI insights — coming soon
+          AI tools — cover letters & resume analysis
         </div>
       </nav>
 
