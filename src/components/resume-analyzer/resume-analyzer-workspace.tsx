@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  getResumeExtractedTextAction,
   reanalyzeResumeAction,
   uploadAndAnalyzeResumeAction,
   type ResumeAnalyzerState,
@@ -36,12 +37,11 @@ export function ResumeAnalyzerWorkspace({ history }: ResumeAnalyzerWorkspaceProp
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [activeAnalysis, setActiveAnalysis] =
     useState<ResumeAnalysisRecord | null>(history[0] ?? null);
-  const [extractedText, setExtractedText] = useState(
-    history[0]?.extractedText ?? "",
-  );
+  const [extractedText, setExtractedText] = useState("");
   const [resumeId, setResumeId] = useState<string | null>(
     history[0]?.resumeId ?? null,
   );
+  const [loadingText, setLoadingText] = useState(false);
 
   const busy = uploading || reanalyzing;
 
@@ -61,6 +61,27 @@ export function ResumeAnalyzerWorkspace({ history }: ResumeAnalyzerWorkspaceProp
     }
   }, [reanalyzeState]);
 
+  useEffect(() => {
+    const initial = history[0];
+    if (!initial) return;
+
+    let cancelled = false;
+    setLoadingText(true);
+
+    getResumeExtractedTextAction(initial.resumeId).then((result) => {
+      if (cancelled) return;
+      if (result.text) {
+        setExtractedText(result.text);
+        setResumeId(initial.resumeId);
+      }
+      setLoadingText(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [history]);
+
   function handleFileSelect(file: File) {
     setSelectedFile(file);
     if (fileInputRef.current) {
@@ -70,12 +91,17 @@ export function ResumeAnalyzerWorkspace({ history }: ResumeAnalyzerWorkspaceProp
     }
   }
 
-  function handleSelectHistory(analysis: ResumeAnalysisRecord) {
+  async function handleSelectHistory(analysis: ResumeAnalysisRecord) {
     setActiveAnalysis(analysis);
     setResumeId(analysis.resumeId);
-    if (analysis.extractedText) {
-      setExtractedText(analysis.extractedText);
+    setLoadingText(true);
+    setExtractedText("");
+
+    const result = await getResumeExtractedTextAction(analysis.resumeId);
+    if (result.text) {
+      setExtractedText(result.text);
     }
+    setLoadingText(false);
   }
 
   const error = uploadState.error || reanalyzeState.error;
@@ -154,7 +180,7 @@ export function ResumeAnalyzerWorkspace({ history }: ResumeAnalyzerWorkspaceProp
         </div>
       </div>
 
-      {extractedText && resumeId ? (
+      {resumeId && (extractedText || loadingText) ? (
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
           <div className="mb-4">
             <h2 className="text-sm font-semibold text-zinc-100">
@@ -164,36 +190,42 @@ export function ResumeAnalyzerWorkspace({ history }: ResumeAnalyzerWorkspaceProp
               Tweak your resume text and run a fresh analysis.
             </p>
           </div>
-          <form action={reanalyzeAction} className="space-y-4">
-            <input type="hidden" name="resumeId" value={resumeId} />
-            <div className="space-y-2">
-              <Label htmlFor="extractedText" className="text-zinc-300">
-                Extracted resume text
-              </Label>
-              <Textarea
-                id="extractedText"
-                name="extractedText"
-                value={extractedText}
-                onChange={(e) => setExtractedText(e.target.value)}
-                rows={12}
-                className="min-h-[280px] resize-y font-mono text-xs leading-relaxed"
-                disabled={busy}
-              />
-            </div>
-            <Button type="submit" variant="outline" disabled={busy}>
-              {reanalyzing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Re-analyzing…
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4" />
-                  Re-analyze
-                </>
-              )}
-            </Button>
-          </form>
+          {loadingText ? (
+            <p className="text-sm text-zinc-500" aria-live="polite">
+              Loading resume text…
+            </p>
+          ) : (
+            <form action={reanalyzeAction} className="space-y-4">
+              <input type="hidden" name="resumeId" value={resumeId} />
+              <div className="space-y-2">
+                <Label htmlFor="extractedText" className="text-zinc-300">
+                  Extracted resume text
+                </Label>
+                <Textarea
+                  id="extractedText"
+                  name="extractedText"
+                  value={extractedText}
+                  onChange={(e) => setExtractedText(e.target.value)}
+                  rows={12}
+                  className="min-h-[280px] resize-y font-mono text-xs leading-relaxed"
+                  disabled={busy}
+                />
+              </div>
+              <Button type="submit" variant="outline" disabled={busy}>
+                {reanalyzing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Re-analyzing…
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4" />
+                    Re-analyze
+                  </>
+                )}
+              </Button>
+            </form>
+          )}
         </div>
       ) : null}
 

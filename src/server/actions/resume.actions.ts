@@ -7,6 +7,7 @@ import { extractResumeText } from "@/lib/resume/extract-text";
 import { deleteResumeFile, saveResumeFile } from "@/lib/resume/storage";
 import { requireSession } from "@/lib/auth/session";
 import { OpenAIConfigError } from "@/lib/openai";
+import { rateLimit, rateLimitMessage } from "@/lib/rate-limit";
 import {
   createResume,
   createResumeAnalysis,
@@ -40,6 +41,9 @@ async function runAnalysis(
 ): Promise<ResumeAnalysisRecord> {
   const aiResult = await analyzeResumeText(extractedText, candidateName);
   const saved = await createResumeAnalysis(userId, resumeId, aiResult);
+  if (!saved) {
+    throw new Error("Resume not found.");
+  }
   return mapAnalysisRecord(saved);
 }
 
@@ -47,10 +51,11 @@ function handleAiError(error: unknown): string {
   if (error instanceof OpenAIConfigError) {
     return "AI is not configured. Add OPENAI_API_KEY to your environment.";
   }
-  if (error instanceof Error) {
+  if (error instanceof Error && error.message.includes("extract")) {
     return error.message;
   }
-  return "Something went wrong. Please try again.";
+  console.error("Resume AI error:", error);
+  return "Analysis failed. Please try again shortly.";
 }
 
 export async function uploadAndAnalyzeResumeAction(
@@ -58,6 +63,12 @@ export async function uploadAndAnalyzeResumeAction(
   formData: FormData,
 ): Promise<ResumeAnalyzerState> {
   const session = await requireSession();
+
+  const limited = rateLimit(`resume-upload:${session.user.id}`, 5, 60 * 60 * 1000);
+  if (!limited.ok) {
+    return { error: rateLimitMessage(limited.retryAfterSec) };
+  }
+
   const file = formData.get("resume") as File | null;
   const validationError = validateResumeFile(file);
 
@@ -129,6 +140,12 @@ export async function reanalyzeResumeAction(
   formData: FormData,
 ): Promise<ResumeAnalyzerState> {
   const session = await requireSession();
+
+  const limited = rateLimit(`resume-reanalyze:${session.user.id}`, 10, 60 * 60 * 1000);
+  if (!limited.ok) {
+    return { error: rateLimitMessage(limited.retryAfterSec) };
+  }
+
   const parsed = reanalyzeResumeSchema.safeParse({
     resumeId: formData.get("resumeId"),
     extractedText: formData.get("extractedText"),
@@ -182,4 +199,17 @@ export async function deleteResumeAnalysisAction(
 
   revalidatePath("/resume-analyzer");
   return { success: "Analysis deleted." };
+}
+
+export async function getResumeExtractedTextAction(
+  resumeId: string,
+): Promise<{ text?: string; error?: string }> {
+  const session = await requireSession();
+  const resume = await getResumeById(session.user.id, resumeId);
+
+  if (!resume) {
+    return { error: "Resume not found." };
+  }
+
+  return { text: resume.extractedText };
 }

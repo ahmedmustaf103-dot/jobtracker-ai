@@ -11,8 +11,8 @@ type ApplicationsTableProps = {
 
 export function ApplicationsTable({ applications }: ApplicationsTableProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10">
-      <table className="w-full text-left text-sm">
+    <div className="overflow-x-auto rounded-xl border border-white/10">
+      <table className="w-full min-w-[640px] text-left text-sm">
         <thead className="border-b border-white/10 bg-white/[0.03] text-zinc-400">
           <tr>
             <th className="px-4 py-3 font-medium">Role</th>

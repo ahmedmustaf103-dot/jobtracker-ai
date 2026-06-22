@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useActionState } from "react";
 
+import { Button } from "@/components/ui/button";
+import { FormAlert } from "@/components/ui/form-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,9 +14,6 @@ import {
 
 const initialState: AuthActionState = {};
 
-const inputClass =
-  "border-white/10 bg-white/[0.04] text-zinc-100 shadow-none placeholder:text-zinc-500 focus-visible:ring-violet-500";
-
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(
     credentialsSignInAction,
@@ -22,11 +21,13 @@ export function LoginForm() {
   );
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form
+      action={formAction}
+      className="space-y-4"
+      aria-describedby={state.error ? "login-error" : undefined}
+    >
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-zinc-300">
-          Email
-        </Label>
+        <Label htmlFor="email">Email</Label>
         <Input
           id="email"
           name="email"
@@ -34,13 +35,11 @@ export function LoginForm() {
           autoComplete="email"
           required
           placeholder="you@company.com"
-          className={inputClass}
+          aria-invalid={state.error ? true : undefined}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password" className="text-zinc-300">
-          Password
-        </Label>
+        <Label htmlFor="password">Password</Label>
         <Input
           id="password"
           name="password"
@@ -48,21 +47,17 @@ export function LoginForm() {
           autoComplete="current-password"
           required
           placeholder="••••••••"
-          className={inputClass}
+          aria-invalid={state.error ? true : undefined}
         />
       </div>
       {state.error ? (
-        <p className="text-sm text-red-400" role="alert">
+        <FormAlert variant="error" id="login-error">
           {state.error}
-        </p>
+        </FormAlert>
       ) : null}
-      <button
-        type="submit"
-        disabled={pending}
-        className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-900/40 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
-      >
+      <Button type="submit" disabled={pending} className="w-full">
         {pending ? "Signing in…" : "Sign in"}
-      </button>
+      </Button>
       <p className="text-center text-sm text-zinc-500">
         No account?{" "}
         <Link

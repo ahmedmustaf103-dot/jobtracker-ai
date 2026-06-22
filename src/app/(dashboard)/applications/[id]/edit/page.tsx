@@ -17,8 +17,22 @@ type EditApplicationPageProps = {
 export async function generateMetadata({
   params,
 }: EditApplicationPageProps): Promise<Metadata> {
+  const session = await getSession();
+  const userId = session?.user?.id;
   const { id } = await params;
-  return { title: `Edit application ${id.slice(0, 8)}…` };
+
+  if (!userId) {
+    return { title: "Edit application" };
+  }
+
+  const application = await getApplicationById(userId, id);
+  if (!application) {
+    return { title: "Edit application" };
+  }
+
+  return {
+    title: `${application.title} · ${application.company}`,
+  };
 }
 
 export default async function EditApplicationPage({

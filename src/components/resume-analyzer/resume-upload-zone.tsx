@@ -50,6 +50,11 @@ export function ResumeUploadZone({
       onClick={() => inputRef.current?.click()}
       role="button"
       tabIndex={0}
+      aria-label={
+        selectedFileName
+          ? `Selected file ${selectedFileName}. Click or drop to replace.`
+          : "Upload resume. Drag and drop a PDF or DOCX file, or click to browse."
+      }
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") inputRef.current?.click();
       }}

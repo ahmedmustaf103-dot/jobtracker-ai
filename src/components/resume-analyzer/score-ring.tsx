@@ -25,8 +25,10 @@ export function ScoreRing({ score, size = 120, className }: ScoreRingProps) {
     <div
       className={cn("relative inline-flex items-center justify-center", className)}
       style={{ width: size, height: size }}
+      role="img"
+      aria-label={`Resume score: ${score} out of 100`}
     >
-      <svg width={size} height={size} className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -48,7 +50,7 @@ export function ScoreRing({ score, size = 120, className }: ScoreRingProps) {
           className="transition-all duration-700 ease-out"
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <div className="absolute inset-0 flex flex-col items-center justify-center" aria-hidden="true">
         <span className="text-3xl font-bold tabular-nums text-zinc-50">
           {score}
         </span>

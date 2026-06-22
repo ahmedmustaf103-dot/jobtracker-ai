@@ -9,7 +9,7 @@ import {
 } from "@/server/services/resumes.service";
 
 export const metadata: Metadata = {
-  title: "Resume Analyzer",
+  title: "Resume analyzer",
 };
 
 export default async function ResumeAnalyzerPage() {
@@ -26,8 +26,8 @@ export default async function ResumeAnalyzerPage() {
   return (
     <div className="space-y-8">
       <DashboardHeader
-        title="AI Resume Analyzer"
-        description="Upload your resume for an instant AI score, ATS tips, and keyword insights."
+        title="Resume analyzer"
+        description="Upload a PDF or DOCX for an ATS score, keyword gaps, and improvement suggestions."
       />
       <ResumeAnalyzerWorkspace history={history} />
     </div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { siteConfig } from "@/config/site";
 import { GithubIcon } from "@/components/marketing/github-icon";
+import { Logo } from "@/components/ui/logo";
 
 const columns = [
   {
@@ -9,36 +10,27 @@ const columns = [
     links: [
       { label: "Features", href: "#features" },
       { label: "Pricing", href: "#pricing" },
-      { label: "Dashboard", href: "/dashboard" },
+      { label: "Sign in", href: "/login" },
     ],
   },
   {
-    title: "Account",
+    title: "Get started",
     links: [
-      { label: "Sign in", href: "/login" },
-      { label: "Start Free", href: "/register" },
+      { label: "Create account", href: "/register" },
+      { label: "Dashboard", href: "/dashboard" },
     ],
   },
 ];
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-white/[0.06] bg-[#0A0A0A]">
+    <footer className="border-t border-white/[0.06] bg-background">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <Link
-              href="/"
-              className="flex items-center gap-2.5 font-semibold tracking-tight text-zinc-50"
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 text-sm font-bold text-white">
-                JT
-              </span>
-              {siteConfig.name}
-            </Link>
+            <Logo size="sm" />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-zinc-500">
-              The organised way to run your job search — from first application
-              to signed offer.
+              {siteConfig.description}
             </p>
           </div>
 
@@ -73,8 +65,8 @@ export function MarketingFooter() {
             rel="noreferrer"
             className="flex items-center gap-2 text-xs text-zinc-500 transition-colors hover:text-zinc-200"
           >
-            <GithubIcon className="h-4 w-4" />
-            View on GitHub
+            <GithubIcon className="h-4 w-4" aria-hidden="true" />
+            Source on GitHub
           </a>
         </div>
       </div>

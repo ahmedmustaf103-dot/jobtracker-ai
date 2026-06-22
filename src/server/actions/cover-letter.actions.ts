@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { requireSession } from "@/lib/auth/session";
 import { getOpenAI, OpenAIConfigError, OPENAI_MODEL } from "@/lib/openai";
+import { rateLimit, rateLimitMessage } from "@/lib/rate-limit";
 import {
   createCoverLetter,
   deleteCoverLetter,
@@ -61,6 +62,12 @@ export async function generateCoverLetterAction(
   formData: FormData,
 ): Promise<CoverLetterActionState> {
   const session = await requireSession();
+
+  const limited = rateLimit(`cover-letter:${session.user.id}`, 10, 60 * 60 * 1000);
+  if (!limited.ok) {
+    return { error: rateLimitMessage(limited.retryAfterSec) };
+  }
+
   const parsed = parseGenerateCoverLetterForm(formData);
 
   if (!parsed.success) {

@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { FormAlert } from "@/components/ui/form-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -33,25 +34,21 @@ export function ProfileForm({ defaultName, email }: ProfileFormProps) {
           required
           minLength={2}
           defaultValue={defaultName}
-          placeholder="Jane Doe"
+          placeholder="Alex Morgan"
         />
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input id="email" type="email" value={email} disabled />
-        <p className="text-xs text-zinc-400">
-          Email cannot be changed — it is your sign-in identity.
+        <p className="text-xs text-zinc-500">
+          Email is tied to your sign-in and cannot be changed here.
         </p>
       </div>
       {state.error ? (
-        <p className="text-sm text-red-400" role="alert">
-          {state.error}
-        </p>
+        <FormAlert variant="error">{state.error}</FormAlert>
       ) : null}
       {state.success ? (
-        <p className="text-sm text-emerald-400" role="status">
-          {state.success}
-        </p>
+        <FormAlert variant="success">{state.success}</FormAlert>
       ) : null}
       <Button type="submit" disabled={pending}>
         {pending ? "Saving…" : "Save profile"}

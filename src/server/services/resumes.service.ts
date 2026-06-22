@@ -10,7 +10,7 @@ export async function listResumeAnalyses(userId: string, limit = 20) {
     take: limit,
     include: {
       resume: {
-        select: { fileName: true, extractedText: true },
+        select: { fileName: true },
       },
     },
   });
@@ -73,6 +73,9 @@ export async function createResumeAnalysis(
   resumeId: string,
   analysis: ResumeAnalysisPayload,
 ) {
+  const resume = await getResumeById(userId, resumeId);
+  if (!resume) return null;
+
   return prisma.resumeAnalysis.create({
     data: {
       userId,
@@ -108,7 +111,7 @@ export async function deleteResume(userId: string, id: string) {
 }
 
 export function mapAnalysisRecord(
-  record: Awaited<ReturnType<typeof createResumeAnalysis>>,
+  record: NonNullable<Awaited<ReturnType<typeof createResumeAnalysis>>>,
 ) {
   return mapAnalysisFromDb(record);
 }
@@ -120,7 +123,6 @@ export function mapAnalysisFromDb(
     id: record.id,
     resumeId: record.resumeId,
     fileName: record.resume.fileName,
-    extractedText: record.resume.extractedText,
     createdAt: record.createdAt.toISOString(),
     score: record.score,
     strengths: record.strengths as string[],

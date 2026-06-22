@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { FormAlert } from "@/components/ui/form-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
@@ -52,7 +53,7 @@ export function ApplicationForm({
             name="company"
             required
             defaultValue={defaultValues?.company}
-            placeholder="Acme Corp"
+            placeholder="Northwind Labs"
           />
         </div>
         <div className="space-y-2">
@@ -83,7 +84,7 @@ export function ApplicationForm({
             id="salary"
             name="salary"
             defaultValue={defaultValues?.salary ?? ""}
-            placeholder="$120k – $150k"
+            placeholder="£60,000 – £75,000"
           />
         </div>
       </div>
@@ -126,9 +127,7 @@ export function ApplicationForm({
       </div>
 
       {state.error ? (
-        <p className="text-sm text-red-400" role="alert">
-          {state.error}
-        </p>
+        <FormAlert variant="error">{state.error}</FormAlert>
       ) : null}
 
       <Button type="submit" disabled={pending}>

@@ -3,11 +3,14 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { Sparkles } from "lucide-react";
 
+import { CopyButton } from "@/components/cover-letters/copy-button";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { FormAlert } from "@/components/ui/form-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Panel } from "@/components/ui/panel";
 import { Textarea } from "@/components/ui/textarea";
-import { CopyButton } from "@/components/cover-letters/copy-button";
 import {
   generateCoverLetterAction,
   updateCoverLetterAction,
@@ -29,7 +32,6 @@ export function CoverLetterGenerator() {
   );
   const [saving, startSaving] = useTransition();
 
-  // Load freshly generated content into the editable area.
   useEffect(() => {
     if (state.coverLetter && state.coverLetter.id !== activeId) {
       setDraft(state.coverLetter.content);
@@ -49,26 +51,21 @@ export function CoverLetterGenerator() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      {/* Input form */}
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+      <Panel>
         <form action={formAction} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="company" className="text-zinc-300">
-                Company
-              </Label>
+              <Label htmlFor="company">Company</Label>
               <Input
                 id="company"
                 name="company"
                 required
-                placeholder="Stripe"
+                placeholder="Northwind Labs"
                 disabled={generating}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="role" className="text-zinc-300">
-                Role
-              </Label>
+              <Label htmlFor="role">Role</Label>
               <Input
                 id="role"
                 name="role"
@@ -80,9 +77,7 @@ export function CoverLetterGenerator() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="jobDescription" className="text-zinc-300">
-              Job description
-            </Label>
+            <Label htmlFor="jobDescription">Job description</Label>
             <Textarea
               id="jobDescription"
               name="jobDescription"
@@ -93,17 +88,12 @@ export function CoverLetterGenerator() {
               disabled={generating}
             />
             <p className="text-xs text-zinc-500">
-              The more detail you paste, the more tailored your letter will be.
+              More detail in the posting usually leads to a more specific draft.
             </p>
           </div>
 
           {state.error ? (
-            <p
-              className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300"
-              role="alert"
-            >
-              {state.error}
-            </p>
+            <FormAlert variant="error">{state.error}</FormAlert>
           ) : null}
 
           <Button type="submit" className="w-full" disabled={generating}>
@@ -111,19 +101,18 @@ export function CoverLetterGenerator() {
             {generating ? "Generating…" : "Generate cover letter"}
           </Button>
         </form>
-      </div>
+      </Panel>
 
-      {/* Result */}
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-        <div className="mb-4 flex items-center justify-between">
+      <Panel>
+        <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-sm font-semibold text-zinc-100">
-            Your cover letter
+            Generated draft
           </h2>
           {draft ? <CopyButton value={draft} /> : null}
         </div>
 
         {generating ? (
-          <div className="space-y-3" aria-busy="true">
+          <div className="space-y-3" aria-busy="true" aria-label="Generating cover letter">
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
@@ -143,10 +132,14 @@ export function CoverLetterGenerator() {
             />
             <div className="flex items-center justify-end gap-3">
               {saveState === "saved" ? (
-                <span className="text-xs text-emerald-400">Saved</span>
+                <FormAlert variant="success" className="border-0 bg-transparent px-0 py-0 text-xs">
+                  Changes saved
+                </FormAlert>
               ) : null}
               {saveState === "error" ? (
-                <span className="text-xs text-red-400">Couldn’t save</span>
+                <FormAlert variant="error" className="border-0 bg-transparent px-0 py-0 text-xs">
+                  Could not save changes
+                </FormAlert>
               ) : null}
               <Button
                 type="button"
@@ -160,20 +153,14 @@ export function CoverLetterGenerator() {
             </div>
           </div>
         ) : (
-          <div className="flex min-h-[420px] flex-col items-center justify-center rounded-xl border border-dashed border-white/10 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/15">
-              <Sparkles className="h-6 w-6 text-violet-300" />
-            </div>
-            <p className="mt-4 text-sm font-medium text-zinc-300">
-              Nothing here yet
-            </p>
-            <p className="mt-1 max-w-xs text-xs text-zinc-500">
-              Fill in the details and generate a tailored cover letter in
-              seconds.
-            </p>
-          </div>
+          <EmptyState
+            icon={Sparkles}
+            title="No draft yet"
+            description="Add the company, role, and job description, then generate your first letter."
+            className="min-h-[420px] border-0 bg-transparent py-16"
+          />
         )}
-      </div>
+      </Panel>
     </div>
   );
 }

@@ -1,8 +1,8 @@
 # JobTracker AI
 
-SaaS for tracking job applications — built over **10 days** (1 commit/day).
+SaaS for tracking job applications — with AI cover letters and resume analysis.
 
-Track every role from wishlist to offer: status pipeline, quick updates, filters, and a stats dashboard — behind email/password auth.
+Track every role from wishlist to offer: status pipeline, quick updates, filters, a stats dashboard, and AI tools to sharpen your applications.
 
 ## Features
 
@@ -10,8 +10,10 @@ Track every role from wishlist to offer: status pipeline, quick updates, filters
 - **Applications CRUD** — create, edit, delete roles with company, salary, notes
 - **Status workflow** — wishlist → applied → screening → interview → offer, with quick inline updates
 - **Filters** — filter the list by any status via URL params
-- **Dashboard** — totals, pipeline breakdown, recent activity
+- **Dashboard** — totals, pipeline breakdown, recent activity, onboarding for new users
 - **Settings** — update display name, change password
+- **AI cover letters** — generate tailored cover letters from a job description (OpenAI)
+- **AI resume analyzer** — upload PDF/DOCX for ATS score, strengths, weaknesses, and keyword tips
 
 ## Stack
 
@@ -24,23 +26,24 @@ Track every role from wishlist to offer: status pipeline, quick updates, filters
 | ORM | Prisma 6 |
 | Auth | Auth.js (next-auth v5) |
 | Validation | Zod |
+| AI | OpenAI API |
 
 ## Project structure
 
 ```
 src/
 ├── app/
-│   ├── (marketing)/     # Public pages
-│   ├── (auth)/          # Login & register (Day 3)
-│   ├── (dashboard)/     # Protected app (Day 4+)
-│   └── api/             # Route handlers (Day 3+)
+│   ├── (marketing)/     # Public landing page
+│   ├── (auth)/          # Login & register
+│   ├── (dashboard)/     # Protected app (dashboard, applications, AI tools)
+│   └── api/             # Route handlers
 ├── components/
-│   ├── ui/              # Buttons, inputs, cards
-│   ├── layout/          # Headers, sidebar
-│   ├── auth/            # Auth forms
-│   └── dashboard/       # Dashboard widgets
-├── config/              # Site & app configuration
-├── lib/                 # Shared utilities (db, auth helpers)
+│   ├── ui/              # Buttons, inputs, cards, confirm dialog
+│   ├── layout/          # Headers, sidebar, mobile shell
+│   ├── marketing/       # Landing page sections
+│   ├── cover-letters/   # Cover letter generator UI
+│   └── resume-analyzer/ # Resume upload & analysis UI
+├── lib/                 # Shared utilities (db, auth, openai, rate-limit)
 ├── server/
 │   ├── actions/         # Server Actions
 │   └── services/        # Data / business logic
@@ -56,7 +59,7 @@ prisma/
 ```bash
 npm install
 cp .env.example .env
-# Set DATABASE_URL, AUTH_SECRET, AUTH_URL in .env
+# Set DATABASE_URL, AUTH_SECRET, AUTH_URL, OPENAI_API_KEY in .env
 npm run db:migrate
 npm run dev
 ```
@@ -70,6 +73,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | `DATABASE_URL` | Yes | PostgreSQL connection string (Neon, Supabase, or local) |
 | `AUTH_SECRET` | Yes | Session secret — generate with `openssl rand -base64 32` |
 | `AUTH_URL` | Yes | App URL (`http://localhost:3000` locally) |
+| `OPENAI_API_KEY` | For AI | OpenAI API key for cover letters & resume analyzer |
+| `OPENAI_MODEL` | No | Model override (defaults to `gpt-4o-mini`) |
 | `NEXT_PUBLIC_APP_URL` | No | Public URL used in site metadata |
 
 ### Demo account
@@ -86,22 +91,13 @@ After `npm run db:seed`: **demo@jobtracker.ai** / **password123** (3 sample appl
 | `npm run db:studio` | Open Prisma Studio |
 | `npm run db:seed` | Seed demo user + sample applications |
 
-## Build roadmap (10 days · 1 commit/day)
+### Tests
 
-| Day | Focus | Commit message (example) |
-|-----|--------|---------------------------|
-| 1 | ✅ Project init & structure | `chore: initialize jobtracker-ai project` |
-| 2 | ✅ Prisma + PostgreSQL schema | `feat(db): add schema and initial migration` |
-| 3 | ✅ Auth.js + sign up / sign in | `feat(auth): add auth and credentials flow` |
-| 4 | ✅ Landing polish + dashboard shell | `feat: add landing page and dashboard layout` |
-| 5 | ✅ Dashboard stats + applications list | `feat(dashboard): add overview and applications list` |
-| 6 | ✅ Create & edit applications | `feat(applications): add create and edit flows` |
-| 7 | ✅ Delete, status updates & filters | `feat(applications): add delete and status workflow` |
-| 8 | ✅ Settings & profile | `feat(settings): add profile settings page` |
-| 9 | ✅ Production prep (build, docs, polish) | `chore: prepare for production deployment` |
-| 10 | Deploy to Vercel | `chore: deploy to vercel` |
+```bash
+npm test
+```
 
-**Compressed from 14 days:** auth (3+4), layout (5+6), list+stats (7+8), CRUD split (9–11 → 6–7), ship (13–14 → 9–10).
+Unit tests cover validation schemas and the in-memory rate limiter.
 
 ## Deployment (Vercel)
 
@@ -111,12 +107,17 @@ After `npm run db:seed`: **demo@jobtracker.ai** / **password123** (3 sample appl
    - `DATABASE_URL` — your production Postgres URL
    - `AUTH_SECRET` — `openssl rand -base64 32`
    - `AUTH_URL` — your production URL (e.g. `https://jobtracker-ai.vercel.app`)
+   - `OPENAI_API_KEY` — for AI features
 4. Deploy. The build runs `prisma generate` automatically.
 5. Apply migrations against production:
 
 ```bash
 DATABASE_URL="<production-url>" npx prisma migrate deploy
 ```
+
+### Resume uploads on Vercel
+
+The resume analyzer stores uploaded files on the local filesystem (`storage/uploads/resumes/`). This works locally but **does not persist on Vercel's serverless runtime**. Cover letters and the rest of the app work fine in production; resume file storage requires cloud storage (e.g. S3, Vercel Blob) for full production support.
 
 ## License
 

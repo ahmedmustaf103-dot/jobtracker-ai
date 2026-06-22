@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { FormAlert } from "@/components/ui/form-alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -54,14 +55,10 @@ export function ChangePasswordForm() {
         />
       </div>
       {state.error ? (
-        <p className="text-sm text-red-400" role="alert">
-          {state.error}
-        </p>
+        <FormAlert variant="error">{state.error}</FormAlert>
       ) : null}
       {state.success ? (
-        <p className="text-sm text-emerald-400" role="status">
-          {state.success}
-        </p>
+        <FormAlert variant="success">{state.success}</FormAlert>
       ) : null}
       <Button type="submit" disabled={pending}>
         {pending ? "Changing…" : "Change password"}

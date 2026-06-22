@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
+import { PenLine } from "lucide-react";
 
 import { CoverLetterGenerator } from "@/components/cover-letters/cover-letter-generator";
 import { CoverLetterHistoryItem } from "@/components/cover-letters/cover-letter-history-item";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
+import { formatCountLabel } from "@/lib/format";
 import { getSession } from "@/lib/auth/session";
 import { listCoverLetters } from "@/server/services/cover-letters.service";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const metadata: Metadata = {
-  title: "AI Cover Letters",
+  title: "Cover letters",
 };
 
 export default async function CoverLettersPage() {
@@ -23,23 +26,29 @@ export default async function CoverLettersPage() {
   return (
     <div className="space-y-8">
       <DashboardHeader
-        title="AI Cover Letter Generator"
-        description="Paste a job description and get a tailored cover letter in seconds."
+        title="Cover letters"
+        description="Generate tailored drafts from job descriptions, then edit and save them."
       />
 
       <CoverLetterGenerator />
 
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold text-zinc-300">
-          Saved cover letters
-        </h2>
+        <div>
+          <h2 className="text-base font-semibold text-zinc-100">
+            Saved letters
+          </h2>
+          <p className="mt-1 text-sm text-zinc-500">
+            {letters.length > 0
+              ? formatCountLabel(letters.length, "saved letter", "saved letters")
+              : "Generated letters appear here after you create them."}
+          </p>
+        </div>
         {letters.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/10 py-12 text-center">
-            <p className="text-sm text-zinc-400">No saved cover letters yet.</p>
-            <p className="mt-1 text-xs text-zinc-500">
-              Generated letters are saved here automatically.
-            </p>
-          </div>
+          <EmptyState
+            icon={PenLine}
+            title="No saved letters yet"
+            description="Generate a cover letter above — it will be saved automatically."
+          />
         ) : (
           <div className="space-y-3">
             {letters.map((letter) => (
