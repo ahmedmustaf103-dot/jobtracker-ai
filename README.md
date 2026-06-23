@@ -1,8 +1,19 @@
 # JobTracker AI
 
+**Live demo:** [https://jobtracker-ai-tau.vercel.app](https://jobtracker-ai-tau.vercel.app)
+
 SaaS for tracking job applications — with AI cover letters and resume analysis.
 
 Track every role from wishlist to offer: status pipeline, quick updates, filters, a stats dashboard, and AI tools to sharpen your applications.
+
+### Try it now
+
+| | |
+|---|---|
+| **Demo login** | `demo@jobtracker.ai` / `password123` |
+| **Or** | [Create a free account](https://jobtracker-ai-tau.vercel.app/register) |
+
+> **Note:** Resume file upload works locally only. Cover letters, application tracking, and the dashboard work on the live demo.
 
 ## Features
 
@@ -101,18 +112,33 @@ Unit tests cover validation schemas and the in-memory rate limiter.
 
 ## Deployment (Vercel)
 
-1. Push the repo to GitHub and import it in [Vercel](https://vercel.com/new).
-2. Provision PostgreSQL (e.g. [Neon](https://neon.tech)) and copy the connection string.
-3. Set environment variables in Vercel:
-   - `DATABASE_URL` — your production Postgres URL
-   - `AUTH_SECRET` — `openssl rand -base64 32`
-   - `AUTH_URL` — your production URL (e.g. `https://jobtracker-ai.vercel.app`)
-   - `OPENAI_API_KEY` — for AI features
-4. Deploy. The build runs `prisma generate` automatically.
-5. Apply migrations against production:
+**Production:** [https://jobtracker-ai-tau.vercel.app](https://jobtracker-ai-tau.vercel.app)
+
+Hosted on Vercel with Neon PostgreSQL. Migrations run automatically during build (`prisma migrate deploy`).
+
+To redeploy after pushing to GitHub:
 
 ```bash
-DATABASE_URL="<production-url>" npx prisma migrate deploy
+git push origin main   # if Git integration is connected
+# or
+npx vercel deploy --prod
+```
+
+### Manual setup (first time)
+
+1. Push the repo to GitHub and import it in [Vercel](https://vercel.com/new).
+2. Provision PostgreSQL (e.g. [Neon](https://neon.tech)) and copy the **pooled** connection string.
+3. Set environment variables in Vercel:
+   - `DATABASE_URL` — Neon pooled Postgres URL
+   - `AUTH_SECRET` — `openssl rand -base64 32`
+   - `AUTH_URL` — your production URL (e.g. `https://jobtracker-ai-tau.vercel.app`)
+   - `NEXT_PUBLIC_APP_URL` — same as `AUTH_URL`
+   - `OPENAI_API_KEY` — for AI features
+4. Deploy. Build runs `prisma generate`, `prisma migrate deploy`, and `next build`.
+5. Seed the demo account (optional):
+
+```bash
+DATABASE_URL="<production-url>" npm run db:seed
 ```
 
 ### Resume uploads on Vercel
