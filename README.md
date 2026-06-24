@@ -23,8 +23,8 @@ Track every role from wishlist to offer: status pipeline, quick updates, filters
 - **Filters** — filter the list by any status via URL params
 - **Dashboard** — totals, pipeline breakdown, recent activity, onboarding for new users
 - **Settings** — update display name, change password
-- **AI cover letters** — generate tailored cover letters from a job description (OpenAI)
-- **AI resume analyzer** — upload PDF/DOCX for ATS score, strengths, weaknesses, and keyword tips
+- **AI cover letters** — generate tailored cover letters with **Gemini 2.5 Flash** (Google AI Studio free tier)
+- **AI resume analyzer** — upload PDF/DOCX for ATS score, strengths, weaknesses, and keyword tips (OpenAI)
 
 ## Stack
 
@@ -37,7 +37,8 @@ Track every role from wishlist to offer: status pipeline, quick updates, filters
 | ORM | Prisma 6 |
 | Auth | Auth.js (next-auth v5) |
 | Validation | Zod |
-| AI | OpenAI API |
+| AI (cover letters) | Google Gemini 2.5 Flash |
+| AI (resume) | OpenAI API |
 
 ## Project structure
 
@@ -47,14 +48,14 @@ src/
 │   ├── (marketing)/     # Public landing page
 │   ├── (auth)/          # Login & register
 │   ├── (dashboard)/     # Protected app (dashboard, applications, AI tools)
-│   └── api/             # Route handlers
+│   └── api/             # Route handlers (e.g. POST /api/cover-letters/generate)
 ├── components/
 │   ├── ui/              # Buttons, inputs, cards, confirm dialog
 │   ├── layout/          # Headers, sidebar, mobile shell
 │   ├── marketing/       # Landing page sections
 │   ├── cover-letters/   # Cover letter generator UI
 │   └── resume-analyzer/ # Resume upload & analysis UI
-├── lib/                 # Shared utilities (db, auth, openai, rate-limit)
+├── lib/                 # Shared utilities (db, auth, gemini, openai, rate-limit)
 ├── server/
 │   ├── actions/         # Server Actions
 │   └── services/        # Data / business logic
@@ -70,7 +71,7 @@ prisma/
 ```bash
 npm install
 cp .env.example .env
-# Set DATABASE_URL, AUTH_SECRET, AUTH_URL, OPENAI_API_KEY in .env
+# Set DATABASE_URL, AUTH_SECRET, AUTH_URL, GEMINI_API_KEY (and OPENAI_API_KEY for resume analyzer) in .env
 npm run db:migrate
 npm run dev
 ```
@@ -84,9 +85,28 @@ Open [http://localhost:3000](http://localhost:3000).
 | `DATABASE_URL` | Yes | PostgreSQL connection string (Neon, Supabase, or local) |
 | `AUTH_SECRET` | Yes | Session secret — generate with `openssl rand -base64 32` |
 | `AUTH_URL` | Yes | App URL (`http://localhost:3000` locally) |
-| `OPENAI_API_KEY` | For AI | OpenAI API key for cover letters & resume analyzer |
-| `OPENAI_MODEL` | No | Model override (defaults to `gpt-4o-mini`) |
+| `GEMINI_API_KEY` | Cover letters | API key from [Google AI Studio](https://aistudio.google.com/apikey) (free tier) |
+| `GEMINI_MODEL` | No | Gemini model override (defaults to `gemini-2.5-flash`) |
+| `OPENAI_API_KEY` | Resume analyzer | OpenAI API key for resume analysis |
+| `OPENAI_MODEL` | No | OpenAI model override (defaults to `gpt-4o-mini`) |
 | `NEXT_PUBLIC_APP_URL` | No | Public URL used in site metadata |
+
+### Cover letter API
+
+Authenticated users can also generate via HTTP:
+
+```bash
+POST /api/cover-letters/generate
+Content-Type: application/json
+
+{
+  "company": "Northwind Labs",
+  "role": "Senior Frontend Engineer",
+  "jobDescription": "Paste the full job description here..."
+}
+```
+
+Returns `{ "content": "..." }` or `{ "error": "..." }`. Requires a signed-in session cookie.
 
 ### Demo account
 
@@ -133,7 +153,8 @@ npx vercel deploy --prod
    - `AUTH_SECRET` — `openssl rand -base64 32`
    - `AUTH_URL` — your production URL (e.g. `https://jobtracker-ai-tau.vercel.app`)
    - `NEXT_PUBLIC_APP_URL` — same as `AUTH_URL`
-   - `OPENAI_API_KEY` — for AI features
+   - `GEMINI_API_KEY` — from [Google AI Studio](https://aistudio.google.com/apikey) (cover letters)
+   - `OPENAI_API_KEY` — for resume analyzer (optional if you disable that feature)
 4. Deploy. Build runs `prisma generate`, `prisma migrate deploy`, and `next build`.
 5. Seed the demo account (optional):
 

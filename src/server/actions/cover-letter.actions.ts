@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 
+import { generateCoverLetterText } from "@/lib/cover-letter/generate";
+import { getGeminiErrorMessage } from "@/lib/gemini-errors";
 import { requireSession } from "@/lib/auth/session";
-import { getOpenAI, OpenAIConfigError, OPENAI_MODEL } from "@/lib/openai";
 import { rateLimit, rateLimitMessage } from "@/lib/rate-limit";
 import {
   createCoverLetter,
@@ -27,36 +28,6 @@ export type CoverLetterActionState = {
   coverLetter?: GeneratedCoverLetter;
 };
 
-function buildPrompt(input: {
-  company: string;
-  role: string;
-  jobDescription: string;
-  candidateName: string;
-}) {
-  return [
-    `You are an expert career coach and professional writer.`,
-    `Write a tailored, compelling cover letter for the following application.`,
-    ``,
-    `Candidate name: ${input.candidateName}`,
-    `Company: ${input.company}`,
-    `Role: ${input.role}`,
-    ``,
-    `Job description:`,
-    `"""`,
-    input.jobDescription,
-    `"""`,
-    ``,
-    `Guidelines:`,
-    `- Keep it concise (3-4 short paragraphs, under 350 words).`,
-    `- Open with a strong, specific hook — avoid generic phrases like "I am writing to apply".`,
-    `- Connect the candidate's likely strengths to the role's key requirements.`,
-    `- Use a confident, professional, and warm tone.`,
-    `- Do not invent specific facts, employers, or metrics about the candidate.`,
-    `- End with a polite call to action and sign off with the candidate's name.`,
-    `- Return only the cover letter text, with no preamble or markdown.`,
-  ].join("\n");
-}
-
 export async function generateCoverLetterAction(
   _prevState: CoverLetterActionState,
   formData: FormData,
@@ -79,44 +50,15 @@ export async function generateCoverLetterAction(
 
   let content: string;
   try {
-    const openai = getOpenAI();
-    const completion = await openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      temperature: 0.7,
-      max_tokens: 800,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You write tailored, professional cover letters. Output plain text only.",
-        },
-        {
-          role: "user",
-          content: buildPrompt({
-            company,
-            role,
-            jobDescription,
-            candidateName,
-          }),
-        },
-      ],
+    content = await generateCoverLetterText({
+      company,
+      role,
+      jobDescription,
+      candidateName,
     });
-
-    content = completion.choices[0]?.message?.content?.trim() ?? "";
-    if (!content) {
-      return { error: "The AI returned an empty response. Please try again." };
-    }
   } catch (error) {
-    if (error instanceof OpenAIConfigError) {
-      return {
-        error:
-          "AI is not configured yet. Add an OPENAI_API_KEY to your environment to generate cover letters.",
-      };
-    }
     console.error("Cover letter generation failed:", error);
-    return {
-      error: "Failed to generate the cover letter. Please try again shortly.",
-    };
+    return { error: getGeminiErrorMessage(error) };
   }
 
   const saved = await createCoverLetter(session.user.id, {

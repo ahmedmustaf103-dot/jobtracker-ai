@@ -6,7 +6,7 @@ import { analyzeResumeText } from "@/lib/resume/analyze";
 import { extractResumeText } from "@/lib/resume/extract-text";
 import { deleteResumeFile, saveResumeFile } from "@/lib/resume/storage";
 import { requireSession } from "@/lib/auth/session";
-import { OpenAIConfigError } from "@/lib/openai";
+import { getOpenAIErrorMessage } from "@/lib/openai-errors";
 import { rateLimit, rateLimitMessage } from "@/lib/rate-limit";
 import {
   createResume,
@@ -48,14 +48,11 @@ async function runAnalysis(
 }
 
 function handleAiError(error: unknown): string {
-  if (error instanceof OpenAIConfigError) {
-    return "AI is not configured. Add OPENAI_API_KEY to your environment.";
-  }
   if (error instanceof Error && error.message.includes("extract")) {
     return error.message;
   }
   console.error("Resume AI error:", error);
-  return "Analysis failed. Please try again shortly.";
+  return getOpenAIErrorMessage(error);
 }
 
 export async function uploadAndAnalyzeResumeAction(

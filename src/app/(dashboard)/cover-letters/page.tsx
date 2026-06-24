@@ -27,7 +27,7 @@ export default async function CoverLettersPage() {
     <div className="space-y-8">
       <DashboardHeader
         title="Cover letters"
-        description="Generate tailored drafts from job descriptions, then edit and save them."
+        description="Generate tailored drafts with Gemini 2.5 Flash, then edit and save them."
       />
 
       <CoverLetterGenerator />
