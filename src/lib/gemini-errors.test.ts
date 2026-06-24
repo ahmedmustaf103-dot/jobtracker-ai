@@ -16,6 +16,11 @@ describe("getGeminiErrorMessage", () => {
     expect(getGeminiErrorMessage(error)).toContain("rate limit");
   });
 
+  it("handles service overload", () => {
+    const error = new GoogleGenerativeAIFetchError("overload", 503);
+    expect(getGeminiErrorMessage(error)).toContain("overloaded");
+  });
+
   it("handles invalid API key", () => {
     const error = new GoogleGenerativeAIFetchError("unauthorized", 401);
     expect(getGeminiErrorMessage(error)).toContain("Invalid Gemini API key");

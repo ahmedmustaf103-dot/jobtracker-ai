@@ -1,4 +1,4 @@
-import { getCoverLetterModel } from "@/lib/gemini";
+import { generateWithGemini } from "@/lib/gemini-generate";
 
 export type CoverLetterGenerationInput = {
   company: string;
@@ -34,13 +34,5 @@ function buildPrompt(input: CoverLetterGenerationInput) {
 export async function generateCoverLetterText(
   input: CoverLetterGenerationInput,
 ): Promise<string> {
-  const model = getCoverLetterModel();
-  const result = await model.generateContent(buildPrompt(input));
-  const content = result.response.text().trim();
-
-  if (!content) {
-    throw new Error("The AI returned an empty response.");
-  }
-
-  return content;
+  return generateWithGemini(buildPrompt(input));
 }

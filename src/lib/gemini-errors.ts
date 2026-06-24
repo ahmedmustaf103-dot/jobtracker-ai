@@ -16,7 +16,7 @@ export function getGeminiErrorMessage(error: unknown): string {
       return "Invalid Gemini API key. Check GEMINI_API_KEY in your environment variables.";
     }
     if (error.status === 503 || error.status === 500) {
-      return "Gemini is temporarily unavailable. Please try again in a few minutes.";
+      return "Gemini is overloaded on the free tier. Wait 30–60 seconds and try again, or check quotas at aistudio.google.com.";
     }
   }
 
