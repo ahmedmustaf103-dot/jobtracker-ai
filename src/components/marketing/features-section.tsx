@@ -1,8 +1,9 @@
 import { BarChart3, Briefcase, CalendarClock, Sparkles } from "lucide-react";
 
+import { features as appFeatures } from "@/config/features";
 import { SectionBadge } from "@/components/ui/section-badge";
 
-const features = [
+const featureCards = [
   {
     icon: Briefcase,
     title: "Application tracking",
@@ -27,8 +28,9 @@ const features = [
   {
     icon: Sparkles,
     title: "AI application tools",
-    description:
-      "Generate cover letters from job descriptions and analyse resumes for ATS readiness, keywords, and improvements.",
+    description: appFeatures.resumeAnalyzer
+      ? "Generate cover letters from job descriptions and analyse resumes for ATS readiness, keywords, and improvements."
+      : "Generate tailored cover letters from job descriptions with Google Gemini — editable drafts you can save per role.",
     gradient: "from-amber-500 to-orange-500",
   },
 ];
@@ -49,7 +51,7 @@ export function FeaturesSection() {
         </div>
 
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map(({ icon: Icon, title, description, gradient }) => (
+          {featureCards.map(({ icon: Icon, title, description, gradient }) => (
             <div
               key={title}
               className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-colors duration-300 hover:border-white/20 hover:bg-white/[0.04]"

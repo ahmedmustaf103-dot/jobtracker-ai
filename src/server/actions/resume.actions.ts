@@ -2,6 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 
+import {
+  features,
+  resumeAnalyzerDisabledMessage,
+} from "@/config/features";
 import { analyzeResumeText } from "@/lib/resume/analyze";
 import { extractResumeText } from "@/lib/resume/extract-text";
 import { deleteResumeFile, saveResumeFile } from "@/lib/resume/storage";
@@ -59,6 +63,10 @@ export async function uploadAndAnalyzeResumeAction(
   _prevState: ResumeAnalyzerState,
   formData: FormData,
 ): Promise<ResumeAnalyzerState> {
+  if (!features.resumeAnalyzer) {
+    return { error: resumeAnalyzerDisabledMessage };
+  }
+
   const session = await requireSession();
 
   const limited = rateLimit(`resume-upload:${session.user.id}`, 5, 60 * 60 * 1000);
@@ -136,6 +144,10 @@ export async function reanalyzeResumeAction(
   _prevState: ResumeAnalyzerState,
   formData: FormData,
 ): Promise<ResumeAnalyzerState> {
+  if (!features.resumeAnalyzer) {
+    return { error: resumeAnalyzerDisabledMessage };
+  }
+
   const session = await requireSession();
 
   const limited = rateLimit(`resume-reanalyze:${session.user.id}`, 10, 60 * 60 * 1000);

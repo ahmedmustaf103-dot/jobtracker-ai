@@ -1,5 +1,7 @@
 # JobTracker AI
 
+![CI](https://github.com/ahmedmustaf103-dot/jobtracker-ai/actions/workflows/ci.yml/badge.svg)
+
 **Live demo:** [https://jobtracker-ai-tau.vercel.app](https://jobtracker-ai-tau.vercel.app)
 
 SaaS for tracking job applications — with AI cover letters and resume analysis.
@@ -13,7 +15,65 @@ Track every role from wishlist to offer: status pipeline, quick updates, filters
 | **Demo login** | `demo@jobtracker.ai` / `password123` |
 | **Or** | [Create a free account](https://jobtracker-ai-tau.vercel.app/register) |
 
-> **Note:** Resume file upload works locally only. Cover letters, application tracking, and the dashboard work on the live demo.
+> **Live demo:** Application tracking, dashboard, and AI cover letters work in production. Resume upload is disabled on Vercel (serverless has no persistent disk) — run locally to try the full analyzer.
+
+## Why I built this
+
+I built JobTracker AI to solve a problem I kept hitting during job searches: tracking roles in spreadsheets while juggling cover letters and interview prep in separate tabs. I wanted one place to manage the pipeline, see progress at a glance, and use AI where it actually saves time — drafting a first cover letter from a job description, not replacing thoughtful edits.
+
+The project let me practice a full SaaS stack end-to-end: Auth.js sessions, Prisma on PostgreSQL, Server Actions, rate limiting, and integrating two AI providers (Gemini for cover letters, OpenAI for resume scoring). Production deployment on Vercel + Neon surfaced real constraints — like disabling resume uploads until cloud storage is wired up — which made the demo honest and the architecture decisions clearer.
+
+## Screenshots
+
+Add captures to [`docs/screenshots/`](docs/screenshots/) and uncomment the lines below (see the folder README for suggested shots):
+
+<!-- ![Landing page](./docs/screenshots/landing.png) -->
+<!-- ![Dashboard overview](./docs/screenshots/dashboard.png) -->
+<!-- ![Cover letter generator](./docs/screenshots/cover-letters.png) -->
+
+Until images are added, use the [live demo](https://jobtracker-ai-tau.vercel.app) or run locally.
+
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph client [Browser]
+    UI[Next.js App Router UI]
+  end
+
+  subgraph vercel [Vercel]
+    SA[Server Actions]
+    API[Route Handlers]
+    MW[Middleware + Auth.js]
+  end
+
+  subgraph data [Data]
+    PG[(PostgreSQL / Neon)]
+    Prisma[Prisma ORM]
+  end
+
+  subgraph ai [AI providers]
+    Gemini[Gemini 2.5 Flash — cover letters]
+    OpenAI[OpenAI — resume analyzer local]
+  end
+
+  UI --> MW
+  MW --> SA
+  MW --> API
+  SA --> Prisma
+  API --> Prisma
+  Prisma --> PG
+  SA --> Gemini
+  SA --> OpenAI
+```
+
+| Concern | Approach |
+|---------|----------|
+| Auth | Auth.js v5, JWT sessions, protected routes via middleware |
+| Data | Prisma 6 + PostgreSQL; migrations run on Vercel build |
+| AI | Gemini with retry/fallback models; generic errors to clients |
+| Rate limits | In-memory per-user limits on AI and upload actions |
+| Resume files | Local disk in dev; feature-flagged off in production |
 
 ## Features
 
@@ -90,6 +150,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `OPENAI_API_KEY` | Resume analyzer | OpenAI API key for resume analysis |
 | `OPENAI_MODEL` | No | OpenAI model override (defaults to `gpt-4o-mini`) |
 | `NEXT_PUBLIC_APP_URL` | No | Public URL used in site metadata |
+| `NEXT_PUBLIC_RESUME_ANALYZER_ENABLED` | No | Set `"true"` to enable resume upload in production (needs cloud storage) |
 
 ### Cover letter API
 
@@ -128,7 +189,7 @@ After `npm run db:seed`: **demo@jobtracker.ai** / **password123** (3 sample appl
 npm test
 ```
 
-Unit tests cover validation schemas and the in-memory rate limiter.
+Unit tests cover validation schemas, AI error mappers, Gemini retry logic, and the in-memory rate limiter. CI runs `npm test` and `npm run build` on every push to `main`.
 
 ## Deployment (Vercel)
 
@@ -164,7 +225,7 @@ DATABASE_URL="<production-url>" npm run db:seed
 
 ### Resume uploads on Vercel
 
-The resume analyzer stores uploaded files on the local filesystem (`storage/uploads/resumes/`). This works locally but **does not persist on Vercel's serverless runtime**. Cover letters and the rest of the app work fine in production; resume file storage requires cloud storage (e.g. S3, Vercel Blob) for full production support.
+The resume analyzer stores uploaded files on the local filesystem (`storage/uploads/resumes/`). This works locally but **does not persist on Vercel's serverless runtime**. The app disables resume upload in production builds by default (`NEXT_PUBLIC_RESUME_ANALYZER_ENABLED` is only needed to turn it back on after adding cloud storage such as S3 or Vercel Blob). Cover letters and the rest of the app work fine in production.
 
 ## License
 

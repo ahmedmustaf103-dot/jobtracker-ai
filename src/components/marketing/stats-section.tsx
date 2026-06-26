@@ -1,8 +1,9 @@
 import { BarChart3, FileSearch, PenLine, Target } from "lucide-react";
 
+import { features } from "@/config/features";
 import { SectionBadge } from "@/components/ui/section-badge";
 
-const capabilities = [
+const allCapabilities = [
   {
     icon: Target,
     title: "Pipeline tracking",
@@ -27,7 +28,11 @@ const capabilities = [
     description:
       "Upload a PDF or DOCX for an ATS score, strengths, gaps, and keyword suggestions.",
   },
-];
+] as const;
+
+const capabilities = allCapabilities.filter(
+  (item) => item.title !== "Resume analyzer" || features.resumeAnalyzer,
+);
 
 export function StatsSection() {
   return (

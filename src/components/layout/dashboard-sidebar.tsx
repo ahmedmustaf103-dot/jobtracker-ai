@@ -11,17 +11,22 @@ import {
   Settings,
 } from "lucide-react";
 
+import { features } from "@/config/features";
 import { Logo } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 import { signOutAction } from "@/server/actions/auth.actions";
 
-const navItems = [
+const allNavItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/applications", label: "Applications", icon: Briefcase },
   { href: "/cover-letters", label: "Cover letters", icon: PenLine },
   { href: "/resume-analyzer", label: "Resume analyzer", icon: FileSearch },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ] as const;
+
+const navItems = allNavItems.filter(
+  (item) => item.href !== "/resume-analyzer" || features.resumeAnalyzer,
+);
 
 type DashboardSidebarProps = {
   className?: string;

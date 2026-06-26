@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Briefcase, FileSearch, PenLine } from "lucide-react";
 
+import { features } from "@/config/features";
 import { siteConfig } from "@/config/site";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const steps = [
+const allSteps = [
   {
     icon: Briefcase,
     title: "Add an application",
@@ -27,7 +28,11 @@ const steps = [
     href: "/resume-analyzer",
     cta: "Open resume analyzer",
   },
-];
+] as const;
+
+const steps = allSteps.filter(
+  (step) => step.href !== "/resume-analyzer" || features.resumeAnalyzer,
+);
 
 export function DashboardOnboarding() {
   return (
@@ -41,7 +46,9 @@ export function DashboardOnboarding() {
         </p>
       </CardHeader>
       <CardContent>
-        <ul className="grid gap-4 sm:grid-cols-3">
+        <ul
+          className={`grid gap-4 ${steps.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}
+        >
           {steps.map(({ icon: Icon, title, description, href, cta }) => (
             <li
               key={href}

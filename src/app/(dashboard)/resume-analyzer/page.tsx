@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
+import { features } from "@/config/features";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
+import { ResumeAnalyzerUnavailable } from "@/components/resume-analyzer/resume-analyzer-unavailable";
 import { ResumeAnalyzerWorkspace } from "@/components/resume-analyzer/resume-analyzer-workspace";
 import { getSession } from "@/lib/auth/session";
 import {
@@ -18,6 +20,18 @@ export default async function ResumeAnalyzerPage() {
 
   if (!userId) {
     return null;
+  }
+
+  if (!features.resumeAnalyzer) {
+    return (
+      <div className="space-y-8">
+        <DashboardHeader
+          title="Resume analyzer"
+          description="Available when running locally — the live demo focuses on tracking and cover letters."
+        />
+        <ResumeAnalyzerUnavailable />
+      </div>
+    );
   }
 
   const records = await listResumeAnalyses(userId);
