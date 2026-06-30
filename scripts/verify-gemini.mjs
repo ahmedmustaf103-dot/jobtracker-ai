@@ -21,13 +21,15 @@ if (!apiKey) {
   );
 }
 
-if (!/^AIzaSy/.test(apiKey)) {
+if (!/^AIzaSy|^AQ\./.test(apiKey)) {
   fail(
-    `GEMINI_API_KEY must start with AIzaSy (Google AI Studio). Yours starts with "${apiKey.slice(0, 8)}…". Vertex or other key formats will not work with this app.`,
+    `GEMINI_API_KEY must be from Google AI Studio (AIzaSy… or AQ.…). Yours starts with "${apiKey.slice(0, 8)}…".`,
   );
 }
 
-console.log("✓ Key format looks valid (AIzaSy…)");
+console.log(
+  `✓ Key format looks valid (${apiKey.startsWith("AQ.") ? "AQ. auth key" : "AIzaSy standard key"})`,
+);
 
 const client = new GoogleGenerativeAI(apiKey);
 const generativeModel = client.getGenerativeModel({ model });

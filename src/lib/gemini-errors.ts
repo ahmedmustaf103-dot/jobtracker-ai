@@ -9,7 +9,7 @@ export function getGeminiErrorMessage(error: unknown): string {
   }
 
   if (error instanceof GeminiKeyFormatError) {
-    return "Invalid Gemini API key format. Use a Google AI Studio key that starts with AIzaSy — create one at aistudio.google.com/apikey.";
+    return "Invalid Gemini API key format. Use a Google AI Studio key (AIzaSy… or AQ.…) from aistudio.google.com/apikey.";
   }
 
   if (error instanceof GoogleGenerativeAIFetchError) {

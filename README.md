@@ -157,7 +157,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `DATABASE_URL` | Yes | PostgreSQL connection string (Neon, Supabase, or local) |
 | `AUTH_SECRET` | Yes | Session secret — generate with `openssl rand -base64 32` |
 | `AUTH_URL` | Yes | App URL (`http://localhost:3000` locally) |
-| `GEMINI_API_KEY` | Cover letters | **Google AI Studio** key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — must start with `AIzaSy` (not Vertex or other formats) |
+| `GEMINI_API_KEY` | Cover letters | **Google AI Studio** key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — `AQ.…` (new) or `AIzaSy…` (legacy) |
 | `GEMINI_MODEL` | No | Gemini model override (defaults to `gemini-2.5-flash`) |
 | `OPENAI_API_KEY` | Resume analyzer | OpenAI API key for resume analysis |
 | `OPENAI_MODEL` | No | OpenAI model override (defaults to `gpt-4o-mini`) |
@@ -210,10 +210,10 @@ npm run test:e2e  # smoke tests (live demo by default)
 
 ### Fix Gemini on production
 
-Cover letters need a **Google AI Studio** key (`AIzaSy…`). Vertex keys (`AQ.…`) and other formats will not work.
+Cover letters need a **Google AI Studio** key. New keys start with **`AQ.`** (auth keys); older keys start with **`AIzaSy`**. Both work.
 
 1. Create a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-2. Set `GEMINI_API_KEY=AIzaSy…` in `.env`
+2. Set `GEMINI_API_KEY=AQ.…` (or `AIzaSy…`) in `.env`
 3. Verify locally:
 
 ```bash
@@ -252,7 +252,7 @@ npx vercel deploy --prod
    - `AUTH_SECRET` — `openssl rand -base64 32`
    - `AUTH_URL` — your production URL (e.g. `https://jobtracker-ai-tau.vercel.app`)
    - `NEXT_PUBLIC_APP_URL` — same as `AUTH_URL`
-   - `GEMINI_API_KEY` — from [Google AI Studio](https://aistudio.google.com/apikey); must start with **`AIzaSy`**. Keys in other formats (e.g. Vertex `AQ.xxx`) will fail cover letter generation.
+   - `GEMINI_API_KEY` — from [Google AI Studio](https://aistudio.google.com/apikey); new keys use **`AQ.`** format, legacy keys use **`AIzaSy`**
    - `OPENAI_API_KEY` — for resume analyzer (optional if you disable that feature)
 4. Deploy. Build runs `prisma generate`, `prisma migrate deploy`, and `next build`.
 5. Seed the demo account (optional):

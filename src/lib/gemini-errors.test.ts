@@ -13,7 +13,7 @@ describe("getGeminiErrorMessage", () => {
 
   it("handles invalid key format", () => {
     expect(getGeminiErrorMessage(new GeminiKeyFormatError())).toContain(
-      "AIzaSy",
+      "AI Studio",
     );
   });
 

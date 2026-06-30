@@ -1,6 +1,6 @@
 /**
  * Push GEMINI_API_KEY from .env to all Vercel environments.
- * Requires: vercel login, valid AIzaSy key in .env, npm run verify:gemini passing first.
+ * Requires: vercel login, valid AI Studio key in .env, npm run verify:gemini passing first.
  */
 import "dotenv/config";
 import { spawnSync } from "node:child_process";
@@ -8,9 +8,9 @@ import { spawnSync } from "node:child_process";
 const apiKey = process.env.GEMINI_API_KEY?.trim() ?? "";
 const environments = ["production", "preview", "development"];
 
-if (!/^AIzaSy/.test(apiKey)) {
+if (!/^AIzaSy|^AQ\./.test(apiKey)) {
   console.error(
-    "\n✗ Invalid GEMINI_API_KEY in .env. Run npm run verify:gemini after adding an AIzaSy key.\n",
+    "\n✗ Invalid GEMINI_API_KEY in .env. Run npm run verify:gemini after adding an AI Studio key (AIzaSy… or AQ.…).\n",
   );
   process.exit(1);
 }
