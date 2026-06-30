@@ -6,6 +6,16 @@
 
 > **CV one-liner:** JobTracker AI — full-stack job search SaaS (Next.js, Prisma, Auth.js, Gemini). [Live demo](https://jobtracker-ai-tau.vercel.app) + [GitHub](https://github.com/ahmedmustaf103-dot/jobtracker-ai).
 
+### CV bullet (copy-paste)
+
+Use this on your CV, LinkedIn, or cover letter:
+
+- **JobTracker AI** — Full-stack job search SaaS with auth, application pipeline, dashboard analytics, and AI cover letters (Gemini). Built with Next.js 15, TypeScript, Prisma, PostgreSQL, and Auth.js. [Live demo](https://jobtracker-ai-tau.vercel.app) · [GitHub](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
+
+Shorter version:
+
+- **JobTracker AI** — Next.js SaaS for tracking job applications and generating AI cover letters. [Demo](https://jobtracker-ai-tau.vercel.app) · [Code](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
+
 SaaS for tracking job applications — with AI cover letters and resume analysis.
 
 Track every role from wishlist to offer: status pipeline, quick updates, filters, a stats dashboard, and AI tools to sharpen your applications.
@@ -191,7 +201,33 @@ After `npm run db:seed`: **demo@jobtracker.ai** / **password123** (3 sample appl
 npm test
 ```
 
-Unit tests cover validation schemas, AI error mappers, Gemini retry logic, and the in-memory rate limiter. CI runs `npm test` and `npm run build` on every push to `main`.
+Unit tests cover validation schemas, AI error mappers, Gemini retry logic, and the in-memory rate limiter. CI runs unit tests, production build, and Playwright smoke tests against the live demo.
+
+```bash
+npm test          # unit tests
+npm run test:e2e  # smoke tests (live demo by default)
+```
+
+### Fix Gemini on production
+
+Cover letters need a **Google AI Studio** key (`AIzaSy…`). Vertex keys (`AQ.…`) and other formats will not work.
+
+1. Create a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. Set `GEMINI_API_KEY=AIzaSy…` in `.env`
+3. Verify locally:
+
+```bash
+npm run verify:gemini
+```
+
+4. Sync to Vercel (requires `npx vercel login` first):
+
+```bash
+npm run vercel:sync-gemini
+npx vercel deploy --prod
+```
+
+5. Confirm: `curl https://jobtracker-ai-tau.vercel.app/api/health` should show `"formatValid": true`
 
 ## Deployment (Vercel)
 

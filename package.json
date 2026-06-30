@@ -9,6 +9,10 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:prod": "E2E_BASE_URL=https://jobtracker-ai-tau.vercel.app playwright test",
+    "verify:gemini": "node scripts/verify-gemini.mjs",
+    "vercel:sync-gemini": "node scripts/sync-gemini-to-vercel.mjs",
     "screenshots": "node scripts/capture-screenshots.mjs",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
@@ -44,6 +48,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
+    "@playwright/test": "^1.55.0",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
