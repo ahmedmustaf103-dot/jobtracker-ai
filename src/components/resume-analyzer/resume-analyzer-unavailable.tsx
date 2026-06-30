@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { FileSearch, Github } from "lucide-react";
+import { FileSearch } from "lucide-react";
+
+import { GithubIcon } from "@/components/marketing/github-icon";
 
 import { siteConfig } from "@/config/site";
 import { resumeAnalyzerDisabledMessage } from "@/config/features";
@@ -32,7 +34,7 @@ export function ResumeAnalyzerUnavailable() {
         </p>
         <Button asChild variant="ghost" size="sm" className="h-auto p-0 text-violet-300">
           <a href={siteConfig.github} target="_blank" rel="noopener noreferrer">
-            <Github className="mr-1.5 inline h-4 w-4" aria-hidden="true" />
+            <GithubIcon className="mr-1.5 inline h-4 w-4" />
             View source on GitHub
           </a>
         </Button>
