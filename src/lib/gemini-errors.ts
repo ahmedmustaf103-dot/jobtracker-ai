@@ -1,11 +1,15 @@
 import { GoogleGenerativeAIFetchError } from "@google/generative-ai";
 
-import { GeminiConfigError } from "@/lib/gemini";
+import { GeminiConfigError, GeminiKeyFormatError } from "@/lib/gemini";
 
 /** Map Gemini SDK errors to user-safe messages. */
 export function getGeminiErrorMessage(error: unknown): string {
   if (error instanceof GeminiConfigError) {
     return "AI is not configured. Add GEMINI_API_KEY from Google AI Studio to your environment.";
+  }
+
+  if (error instanceof GeminiKeyFormatError) {
+    return "Invalid Gemini API key format. Use a Google AI Studio key that starts with AIzaSy — create one at aistudio.google.com/apikey.";
   }
 
   if (error instanceof GoogleGenerativeAIFetchError) {

@@ -8,6 +8,21 @@ export class GeminiConfigError extends Error {
   }
 }
 
+/** Thrown when GEMINI_API_KEY is present but not a Google AI Studio key. */
+export class GeminiKeyFormatError extends Error {
+  constructor() {
+    super(
+      "GEMINI_API_KEY must be a Google AI Studio key (starts with AIzaSy). Create one at https://aistudio.google.com/apikey",
+    );
+    this.name = "GeminiKeyFormatError";
+  }
+}
+
+/** Google AI Studio API keys start with AIzaSy — not Vertex or other formats. */
+export function isValidGeminiApiKeyFormat(apiKey: string): boolean {
+  return /^AIzaSy/.test(apiKey.trim());
+}
+
 /** Stable Gemini 2.5 Flash — free tier via Google AI Studio. */
 export const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
 
@@ -20,6 +35,9 @@ export function getGeminiClient(): GoogleGenerativeAI {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new GeminiConfigError();
+  }
+  if (!isValidGeminiApiKeyFormat(apiKey)) {
+    throw new GeminiKeyFormatError();
   }
   client ??= new GoogleGenerativeAI(apiKey);
   return client;

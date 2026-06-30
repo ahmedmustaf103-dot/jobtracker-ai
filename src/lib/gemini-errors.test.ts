@@ -1,13 +1,19 @@
 import { GoogleGenerativeAIFetchError } from "@google/generative-ai";
 import { describe, expect, it } from "vitest";
 
-import { GeminiConfigError } from "@/lib/gemini";
+import { GeminiConfigError, GeminiKeyFormatError } from "@/lib/gemini";
 import { getGeminiErrorMessage } from "@/lib/gemini-errors";
 
 describe("getGeminiErrorMessage", () => {
   it("handles missing config", () => {
     expect(getGeminiErrorMessage(new GeminiConfigError())).toContain(
       "GEMINI_API_KEY",
+    );
+  });
+
+  it("handles invalid key format", () => {
+    expect(getGeminiErrorMessage(new GeminiKeyFormatError())).toContain(
+      "AIzaSy",
     );
   });
 

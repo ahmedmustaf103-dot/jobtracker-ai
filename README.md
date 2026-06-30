@@ -2,7 +2,9 @@
 
 ![CI](https://github.com/ahmedmustaf103-dot/jobtracker-ai/actions/workflows/ci.yml/badge.svg)
 
-**Live demo:** [https://jobtracker-ai-tau.vercel.app](https://jobtracker-ai-tau.vercel.app)
+**Live demo:** [https://jobtracker-ai-tau.vercel.app](https://jobtracker-ai-tau.vercel.app) · **GitHub:** [ahmedmustaf103-dot/jobtracker-ai](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
+
+> **CV one-liner:** JobTracker AI — full-stack job search SaaS (Next.js, Prisma, Auth.js, Gemini). [Live demo](https://jobtracker-ai-tau.vercel.app) + [GitHub](https://github.com/ahmedmustaf103-dot/jobtracker-ai).
 
 SaaS for tracking job applications — with AI cover letters and resume analysis.
 
@@ -25,13 +27,13 @@ The project let me practice a full SaaS stack end-to-end: Auth.js sessions, Pris
 
 ## Screenshots
 
-Add captures to [`docs/screenshots/`](docs/screenshots/) and uncomment the lines below (see the folder README for suggested shots):
+![Landing page](./docs/screenshots/landing.png)
 
-<!-- ![Landing page](./docs/screenshots/landing.png) -->
-<!-- ![Dashboard overview](./docs/screenshots/dashboard.png) -->
-<!-- ![Cover letter generator](./docs/screenshots/cover-letters.png) -->
+![Dashboard overview](./docs/screenshots/dashboard.png)
 
-Until images are added, use the [live demo](https://jobtracker-ai-tau.vercel.app) or run locally.
+![Cover letter generator](./docs/screenshots/cover-letters.png)
+
+Re-capture after UI changes: `npm run screenshots` (uses the live demo by default).
 
 ## Architecture
 
@@ -145,7 +147,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `DATABASE_URL` | Yes | PostgreSQL connection string (Neon, Supabase, or local) |
 | `AUTH_SECRET` | Yes | Session secret — generate with `openssl rand -base64 32` |
 | `AUTH_URL` | Yes | App URL (`http://localhost:3000` locally) |
-| `GEMINI_API_KEY` | Cover letters | API key from [Google AI Studio](https://aistudio.google.com/apikey) (free tier) |
+| `GEMINI_API_KEY` | Cover letters | **Google AI Studio** key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — must start with `AIzaSy` (not Vertex or other formats) |
 | `GEMINI_MODEL` | No | Gemini model override (defaults to `gemini-2.5-flash`) |
 | `OPENAI_API_KEY` | Resume analyzer | OpenAI API key for resume analysis |
 | `OPENAI_MODEL` | No | OpenAI model override (defaults to `gpt-4o-mini`) |
@@ -214,7 +216,7 @@ npx vercel deploy --prod
    - `AUTH_SECRET` — `openssl rand -base64 32`
    - `AUTH_URL` — your production URL (e.g. `https://jobtracker-ai-tau.vercel.app`)
    - `NEXT_PUBLIC_APP_URL` — same as `AUTH_URL`
-   - `GEMINI_API_KEY` — from [Google AI Studio](https://aistudio.google.com/apikey) (cover letters)
+   - `GEMINI_API_KEY` — from [Google AI Studio](https://aistudio.google.com/apikey); must start with **`AIzaSy`**. Keys in other formats (e.g. Vertex `AQ.xxx`) will fail cover letter generation.
    - `OPENAI_API_KEY` — for resume analyzer (optional if you disable that feature)
 4. Deploy. Build runs `prisma generate`, `prisma migrate deploy`, and `next build`.
 5. Seed the demo account (optional):
