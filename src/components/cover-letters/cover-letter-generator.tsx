@@ -19,7 +19,15 @@ import {
 
 const initialState: CoverLetterActionState = {};
 
-export function CoverLetterGenerator() {
+type CoverLetterGeneratorProps = {
+  defaultCompany?: string;
+  defaultRole?: string;
+};
+
+export function CoverLetterGenerator({
+  defaultCompany,
+  defaultRole,
+}: CoverLetterGeneratorProps) {
   const [state, formAction, generating] = useActionState(
     generateCoverLetterAction,
     initialState,
@@ -60,6 +68,7 @@ export function CoverLetterGenerator() {
                 id="company"
                 name="company"
                 required
+                defaultValue={defaultCompany}
                 placeholder="Northwind Labs"
                 disabled={generating}
               />
@@ -70,6 +79,7 @@ export function CoverLetterGenerator() {
                 id="role"
                 name="role"
                 required
+                defaultValue={defaultRole}
                 placeholder="Senior Frontend Engineer"
                 disabled={generating}
               />

@@ -43,7 +43,12 @@ export function RecentApplications({ applications }: RecentApplicationsProps) {
                 className="flex flex-col gap-2 py-3.5 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-zinc-100">{app.title}</p>
+                  <Link
+                    href={`/applications/${app.id}`}
+                    className="truncate font-medium text-zinc-100 hover:text-violet-300"
+                  >
+                    {app.title}
+                  </Link>
                   <p className="truncate text-sm text-zinc-500">{app.company}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3 text-sm">

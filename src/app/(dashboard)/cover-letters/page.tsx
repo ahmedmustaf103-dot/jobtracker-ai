@@ -13,7 +13,11 @@ export const metadata: Metadata = {
   title: "Cover letters",
 };
 
-export default async function CoverLettersPage() {
+export default async function CoverLettersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ company?: string; role?: string }>;
+}) {
   const session = await getSession();
   const userId = session?.user?.id;
 
@@ -21,6 +25,7 @@ export default async function CoverLettersPage() {
     return null;
   }
 
+  const params = await searchParams;
   const letters = await listCoverLetters(userId);
 
   return (
@@ -30,7 +35,10 @@ export default async function CoverLettersPage() {
         description="Generate tailored drafts with Gemini 2.5 Flash, then edit and save them."
       />
 
-      <CoverLetterGenerator />
+      <CoverLetterGenerator
+        defaultCompany={params.company}
+        defaultRole={params.role}
+      />
 
       <section className="space-y-4">
         <div>

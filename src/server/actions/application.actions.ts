@@ -5,12 +5,14 @@ import { redirect } from "next/navigation";
 
 import { requireSession } from "@/lib/auth/session";
 import {
+  addApplicationNote,
   createApplication,
   deleteApplication,
   updateApplication,
   updateApplicationStatus,
 } from "@/server/services/applications.service";
 import {
+  applicationNoteSchema,
   applicationStatusSchema,
   parseApplicationFormData,
 } from "@/validations/application";
@@ -18,6 +20,12 @@ import {
 export type ApplicationActionState = {
   error?: string;
 };
+
+function revalidateApplicationPaths(id: string) {
+  revalidatePath("/dashboard");
+  revalidatePath("/applications");
+  revalidatePath(`/applications/${id}`);
+}
 
 export async function createApplicationAction(
   _prevState: ApplicationActionState,
@@ -30,10 +38,9 @@ export async function createApplicationAction(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  await createApplication(session.user.id, parsed.data);
-  revalidatePath("/dashboard");
-  revalidatePath("/applications");
-  redirect("/applications");
+  const application = await createApplication(session.user.id, parsed.data);
+  revalidateApplicationPaths(application.id);
+  redirect(`/applications/${application.id}`);
 }
 
 export async function updateApplicationAction(
@@ -53,9 +60,8 @@ export async function updateApplicationAction(
     return { error: "Application not found" };
   }
 
-  revalidatePath("/dashboard");
-  revalidatePath("/applications");
-  redirect("/applications");
+  revalidateApplicationPaths(id);
+  redirect(`/applications/${id}`);
 }
 
 export async function updateApplicationStatusAction(
@@ -79,8 +85,35 @@ export async function updateApplicationStatusAction(
     return { error: "Application not found" };
   }
 
-  revalidatePath("/dashboard");
-  revalidatePath("/applications");
+  revalidateApplicationPaths(id);
+  return {};
+}
+
+export async function addApplicationNoteAction(
+  applicationId: string,
+  _prevState: ApplicationActionState,
+  formData: FormData,
+): Promise<ApplicationActionState> {
+  const session = await requireSession();
+  const parsed = applicationNoteSchema.safeParse({
+    note: formData.get("note"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid note" };
+  }
+
+  const event = await addApplicationNote(
+    session.user.id,
+    applicationId,
+    parsed.data.note,
+  );
+
+  if (!event) {
+    return { error: "Application not found" };
+  }
+
+  revalidateApplicationPaths(applicationId);
   return {};
 }
 

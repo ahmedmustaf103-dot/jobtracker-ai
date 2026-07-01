@@ -25,6 +25,14 @@ export const applicationFormSchema = z.object({
   notes: z.string().max(5000).optional(),
 });
 
+export const applicationNoteSchema = z.object({
+  note: z
+    .string()
+    .trim()
+    .min(1, "Note cannot be empty")
+    .max(2000, "Note is too long"),
+});
+
 export type ApplicationFormInput = z.infer<typeof applicationFormSchema>;
 
 function formDataToObject(formData: FormData) {

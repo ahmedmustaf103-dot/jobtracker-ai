@@ -9,11 +9,13 @@ import { deleteApplicationAction } from "@/server/actions/application.actions";
 type DeleteApplicationButtonProps = {
   id: string;
   title: string;
+  redirectTo?: string;
 };
 
 export function DeleteApplicationButton({
   id,
   title,
+  redirectTo,
 }: DeleteApplicationButtonProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -29,7 +31,11 @@ export function DeleteApplicationButton({
         return;
       }
       setOpen(false);
-      router.refresh();
+      if (redirectTo) {
+        router.push(redirectTo);
+      } else {
+        router.refresh();
+      }
     });
   }
 

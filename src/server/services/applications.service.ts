@@ -69,22 +69,48 @@ export async function getApplicationById(userId: string, id: string) {
   });
 }
 
+export async function getApplicationWithEvents(userId: string, id: string) {
+  return prisma.jobApplication.findFirst({
+    where: { id, userId },
+    include: {
+      events: {
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  });
+}
+
 export async function createApplication(
   userId: string,
   data: CreateApplicationInput,
 ) {
-  return prisma.jobApplication.create({
-    data: {
-      company: data.company,
-      title: data.title,
-      location: data.location,
-      url: data.url,
-      status: data.status ?? "WISHLIST",
-      salary: data.salary,
-      notes: data.notes,
-      appliedAt: data.status === "APPLIED" ? new Date() : undefined,
-      user: { connect: { id: userId } },
-    },
+  const status = data.status ?? "WISHLIST";
+
+  return prisma.$transaction(async (tx) => {
+    const application = await tx.jobApplication.create({
+      data: {
+        company: data.company,
+        title: data.title,
+        location: data.location,
+        url: data.url,
+        status,
+        salary: data.salary,
+        notes: data.notes,
+        appliedAt: status === "APPLIED" ? new Date() : undefined,
+        user: { connect: { id: userId } },
+      },
+    });
+
+    await tx.applicationEvent.create({
+      data: {
+        applicationId: application.id,
+        userId,
+        type: "CREATED",
+        toStatus: status,
+      },
+    });
+
+    return application;
   });
 }
 
@@ -101,18 +127,36 @@ export async function updateApplication(
       ? new Date()
       : existing.appliedAt;
 
-  return prisma.jobApplication.update({
-    where: { id },
-    data: {
-      company: data.company,
-      title: data.title,
-      location: data.location,
-      url: data.url,
-      status: data.status,
-      salary: data.salary,
-      notes: data.notes,
-      appliedAt,
-    },
+  const statusChanged = data.status !== existing.status;
+
+  return prisma.$transaction(async (tx) => {
+    const application = await tx.jobApplication.update({
+      where: { id },
+      data: {
+        company: data.company,
+        title: data.title,
+        location: data.location,
+        url: data.url,
+        status: data.status,
+        salary: data.salary,
+        notes: data.notes,
+        appliedAt,
+      },
+    });
+
+    if (statusChanged) {
+      await tx.applicationEvent.create({
+        data: {
+          applicationId: id,
+          userId,
+          type: "STATUS_CHANGED",
+          fromStatus: existing.status,
+          toStatus: data.status,
+        },
+      });
+    }
+
+    return application;
   });
 }
 
@@ -123,16 +167,57 @@ export async function updateApplicationStatus(
 ) {
   const existing = await getApplicationById(userId, id);
   if (!existing) return null;
+  if (existing.status === status) return existing;
 
   const appliedAt =
     status === "APPLIED" && !existing.appliedAt
       ? new Date()
       : existing.appliedAt;
 
-  return prisma.jobApplication.update({
-    where: { id },
-    data: { status, appliedAt },
+  return prisma.$transaction(async (tx) => {
+    const application = await tx.jobApplication.update({
+      where: { id },
+      data: { status, appliedAt },
+    });
+
+    await tx.applicationEvent.create({
+      data: {
+        applicationId: id,
+        userId,
+        type: "STATUS_CHANGED",
+        fromStatus: existing.status,
+        toStatus: status,
+      },
+    });
+
+    return application;
   });
+}
+
+export async function addApplicationNote(
+  userId: string,
+  applicationId: string,
+  note: string,
+) {
+  const existing = await getApplicationById(userId, applicationId);
+  if (!existing) return null;
+
+  const [event] = await prisma.$transaction([
+    prisma.applicationEvent.create({
+      data: {
+        applicationId,
+        userId,
+        type: "NOTE",
+        note,
+      },
+    }),
+    prisma.jobApplication.update({
+      where: { id: applicationId },
+      data: { updatedAt: new Date() },
+    }),
+  ]);
+
+  return event;
 }
 
 export async function deleteApplication(userId: string, id: string) {

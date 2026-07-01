@@ -28,7 +28,12 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
           {applications.map((app) => (
             <tr key={app.id} className="transition-colors hover:bg-white/[0.02]">
               <td className="px-4 py-3 font-medium text-zinc-100">
-                {app.title}
+                <Link
+                  href={`/applications/${app.id}`}
+                  className="hover:text-violet-300"
+                >
+                  {app.title}
+                </Link>
               </td>
               <td className="px-4 py-3 text-zinc-400">{app.company}</td>
               <td className="px-4 py-3">
@@ -40,8 +45,14 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
               <td className="px-4 py-3">
                 <div className="flex items-center justify-end gap-3">
                   <Link
-                    href={`/applications/${app.id}/edit`}
+                    href={`/applications/${app.id}`}
                     className="text-sm font-medium text-violet-400 hover:text-violet-300"
+                  >
+                    View
+                  </Link>
+                  <Link
+                    href={`/applications/${app.id}/edit`}
+                    className="text-sm font-medium text-zinc-400 hover:text-zinc-200"
                   >
                     Edit
                   </Link>

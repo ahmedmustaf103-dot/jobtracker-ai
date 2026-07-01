@@ -34,6 +34,19 @@ test.describe("live demo smoke", () => {
     ).toBeVisible();
   });
 
+  test("application detail page shows activity timeline", async ({ page }) => {
+    await page.goto("/login");
+    await page.fill('input[name="email"]', DEMO_EMAIL);
+    await page.fill('input[name="password"]', DEMO_PASSWORD);
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+
+    await page.goto("/applications");
+    await page.getByRole("link", { name: "Senior Frontend Engineer" }).first().click();
+    await expect(page).toHaveURL(/\/applications\/.+/);
+    await expect(page.getByRole("heading", { name: "Activity timeline" })).toBeVisible();
+  });
+
   test("gemini is configured on production", async ({ request }) => {
     test.skip(
       !baseURL.includes("vercel.app"),

@@ -55,7 +55,7 @@ export default async function EditApplicationPage({
         description={`${application.title} at ${application.company}`}
       >
         <Button asChild variant="outline" size="sm">
-          <Link href="/applications">Cancel</Link>
+          <Link href={`/applications/${id}`}>Cancel</Link>
         </Button>
       </DashboardHeader>
       <Card className="max-w-2xl">
