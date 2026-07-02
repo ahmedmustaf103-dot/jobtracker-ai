@@ -1,6 +1,6 @@
 import { BarChart3, Briefcase, CalendarClock, Sparkles } from "lucide-react";
 
-import { features as appFeatures } from "@/config/features";
+import { isResumeAnalyzerEnabled } from "@/lib/resume/storage-config";
 import { SectionBadge } from "@/components/ui/section-badge";
 
 const featureCards = [
@@ -28,7 +28,7 @@ const featureCards = [
   {
     icon: Sparkles,
     title: "AI application tools",
-    description: appFeatures.resumeAnalyzer
+    description: isResumeAnalyzerEnabled()
       ? "Generate cover letters from job descriptions and analyse resumes for ATS readiness, keywords, and improvements."
       : "Generate tailored cover letters from job descriptions with Google Gemini — editable drafts you can save per role.",
     gradient: "from-amber-500 to-orange-500",

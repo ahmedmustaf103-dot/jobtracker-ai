@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Briefcase, FileSearch, PenLine } from "lucide-react";
 
-import { features } from "@/config/features";
+import { isResumeAnalyzerEnabled } from "@/lib/resume/storage-config";
 import { siteConfig } from "@/config/site";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,7 +31,7 @@ const allSteps = [
 ] as const;
 
 const steps = allSteps.filter(
-  (step) => step.href !== "/resume-analyzer" || features.resumeAnalyzer,
+  (step) => step.href !== "/resume-analyzer" || isResumeAnalyzerEnabled(),
 );
 
 export function DashboardOnboarding() {

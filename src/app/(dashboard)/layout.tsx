@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { getSession } from "@/lib/auth/session";
+import { isResumeAnalyzerEnabled } from "@/lib/resume/storage-config";
 
 export default async function DashboardLayout({
   children,
@@ -13,5 +14,9 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  return <DashboardShell>{children}</DashboardShell>;
+  return (
+    <DashboardShell resumeAnalyzerEnabled={isResumeAnalyzerEnabled()}>
+      {children}
+    </DashboardShell>
+  );
 }

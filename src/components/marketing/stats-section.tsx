@@ -1,6 +1,6 @@
 import { BarChart3, FileSearch, PenLine, Target } from "lucide-react";
 
-import { features } from "@/config/features";
+import { isResumeAnalyzerEnabled } from "@/lib/resume/storage-config";
 import { SectionBadge } from "@/components/ui/section-badge";
 
 const allCapabilities = [
@@ -31,7 +31,7 @@ const allCapabilities = [
 ] as const;
 
 const capabilities = allCapabilities.filter(
-  (item) => item.title !== "Resume analyzer" || features.resumeAnalyzer,
+  (item) => item.title !== "Resume analyzer" || isResumeAnalyzerEnabled(),
 );
 
 export function StatsSection() {

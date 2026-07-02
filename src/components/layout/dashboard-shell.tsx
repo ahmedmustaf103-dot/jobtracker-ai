@@ -7,7 +7,13 @@ import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { Logo } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+export function DashboardShell({
+  children,
+  resumeAnalyzerEnabled = false,
+}: {
+  children: React.ReactNode;
+  resumeAnalyzerEnabled?: boolean;
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -39,6 +45,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       ) : null}
 
       <DashboardSidebar
+        resumeAnalyzerEnabled={resumeAnalyzerEnabled}
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-64 -translate-x-full transition-transform lg:static lg:z-auto lg:translate-x-0",
           mobileOpen && "translate-x-0",

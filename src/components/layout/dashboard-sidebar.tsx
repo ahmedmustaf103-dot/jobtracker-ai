@@ -11,7 +11,6 @@ import {
   Settings,
 } from "lucide-react";
 
-import { features } from "@/config/features";
 import { Logo } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 import { signOutAction } from "@/server/actions/auth.actions";
@@ -24,22 +23,24 @@ const allNavItems = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ] as const;
 
-const navItems = allNavItems.filter(
-  (item) => item.href !== "/resume-analyzer" || features.resumeAnalyzer,
-);
-
 type DashboardSidebarProps = {
   className?: string;
   onNavigate?: () => void;
   mobileClose?: React.ReactNode;
+  resumeAnalyzerEnabled?: boolean;
 };
 
 export function DashboardSidebar({
   className,
   onNavigate,
   mobileClose,
+  resumeAnalyzerEnabled = false,
 }: DashboardSidebarProps) {
   const pathname = usePathname();
+
+  const navItems = allNavItems.filter(
+    (item) => item.href !== "/resume-analyzer" || resumeAnalyzerEnabled,
+  );
 
   return (
     <aside

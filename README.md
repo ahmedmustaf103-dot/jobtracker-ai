@@ -27,13 +27,21 @@ Track every role from wishlist to offer: status pipeline, quick updates, filters
 | **Demo login** | `demo@jobtracker.ai` / `password123` |
 | **Or** | [Create a free account](https://jobtracker-ai-tau.vercel.app/register) |
 
-> **Live demo:** Application tracking, dashboard, and AI cover letters work in production. Resume upload is disabled on Vercel (serverless has no persistent disk) — run locally to try the full analyzer.
+> **Live demo:** Application tracking, application detail timelines, AI cover letters, and resume upload (with Vercel Blob) work in production.
+
+## Demo walkthrough (~60s)
+
+<video src="./docs/videos/demo-walkthrough.webm" controls width="100%">
+  Demo walkthrough — login, applications, timeline, cover letters
+</video>
+
+Re-record after UI changes: `npm run record:demo`
 
 ## Why I built this
 
 I built JobTracker AI to solve a problem I kept hitting during job searches: tracking roles in spreadsheets while juggling cover letters and interview prep in separate tabs. I wanted one place to manage the pipeline, see progress at a glance, and use AI where it actually saves time — drafting a first cover letter from a job description, not replacing thoughtful edits.
 
-The project let me practice a full SaaS stack end-to-end: Auth.js sessions, Prisma on PostgreSQL, Server Actions, rate limiting, and integrating two AI providers (Gemini for cover letters, OpenAI for resume scoring). Production deployment on Vercel + Neon surfaced real constraints — like disabling resume uploads until cloud storage is wired up — which made the demo honest and the architecture decisions clearer.
+The project let me practice a full SaaS stack end-to-end: Auth.js sessions, Prisma on PostgreSQL, Server Actions, rate limiting, and integrating two AI providers (Gemini for cover letters, OpenAI for resume scoring). Production deployment on Vercel + Neon surfaced real constraints — like wiring resume uploads through Vercel Blob instead of local disk — which made the demo honest and the architecture decisions clearer.
 
 ## Screenshots
 
@@ -85,7 +93,7 @@ flowchart TB
 | Data | Prisma 6 + PostgreSQL; migrations run on Vercel build |
 | AI | Gemini with retry/fallback models; generic errors to clients |
 | Rate limits | In-memory per-user limits on AI and upload actions |
-| Resume files | Local disk in dev; feature-flagged off in production |
+| Resume files | Local disk in dev; **Vercel Blob** in production |
 
 ## Features
 
@@ -261,9 +269,21 @@ npx vercel deploy --prod
 DATABASE_URL="<production-url>" npm run db:seed
 ```
 
-### Resume uploads on Vercel
+### Resume uploads (Vercel Blob)
 
-The resume analyzer stores uploaded files on the local filesystem (`storage/uploads/resumes/`). This works locally but **does not persist on Vercel's serverless runtime**. The app disables resume upload in production builds by default (`NEXT_PUBLIC_RESUME_ANALYZER_ENABLED` is only needed to turn it back on after adding cloud storage such as S3 or Vercel Blob). Cover letters and the rest of the app work fine in production.
+Production resume files use [**Vercel Blob**](https://vercel.com/docs/storage/vercel-blob). Local development uses `storage/uploads/resumes/`.
+
+**Setup:**
+
+```bash
+npm run vercel:setup-blob   # prints steps
+```
+
+1. Create a Blob store in the [Vercel project Storage tab](https://vercel.com) and link it to this app
+2. Redeploy — Vercel injects `BLOB_READ_WRITE_TOKEN` automatically
+3. Confirm: `curl https://jobtracker-ai-tau.vercel.app/api/health` → `"storage": "blob"`
+
+Resume **analysis** still requires `OPENAI_API_KEY` with available quota.
 
 ## License
 

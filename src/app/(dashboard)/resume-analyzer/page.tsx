@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { features } from "@/config/features";
+import { isResumeAnalyzerEnabled } from "@/lib/resume/storage-config";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { ResumeAnalyzerUnavailable } from "@/components/resume-analyzer/resume-analyzer-unavailable";
 import { ResumeAnalyzerWorkspace } from "@/components/resume-analyzer/resume-analyzer-workspace";
@@ -22,7 +22,7 @@ export default async function ResumeAnalyzerPage() {
     return null;
   }
 
-  if (!features.resumeAnalyzer) {
+  if (!isResumeAnalyzerEnabled()) {
     return (
       <div className="space-y-8">
         <DashboardHeader

@@ -2,10 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import {
-  features,
-  resumeAnalyzerDisabledMessage,
-} from "@/config/features";
+import { resumeAnalyzerDisabledMessage } from "@/config/features";
+import { isResumeAnalyzerEnabled } from "@/lib/resume/storage-config";
 import { analyzeResumeText } from "@/lib/resume/analyze";
 import { extractResumeText } from "@/lib/resume/extract-text";
 import { deleteResumeFile, saveResumeFile } from "@/lib/resume/storage";
@@ -63,7 +61,7 @@ export async function uploadAndAnalyzeResumeAction(
   _prevState: ResumeAnalyzerState,
   formData: FormData,
 ): Promise<ResumeAnalyzerState> {
-  if (!features.resumeAnalyzer) {
+  if (!isResumeAnalyzerEnabled()) {
     return { error: resumeAnalyzerDisabledMessage };
   }
 
@@ -144,7 +142,7 @@ export async function reanalyzeResumeAction(
   _prevState: ResumeAnalyzerState,
   formData: FormData,
 ): Promise<ResumeAnalyzerState> {
-  if (!features.resumeAnalyzer) {
+  if (!isResumeAnalyzerEnabled()) {
     return { error: resumeAnalyzerDisabledMessage };
   }
 
