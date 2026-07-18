@@ -5,7 +5,7 @@ import {
 
 import { getGeminiClient, GEMINI_MODEL } from "@/lib/gemini";
 
-const SYSTEM_INSTRUCTION =
+const DEFAULT_SYSTEM_INSTRUCTION =
   "You write tailored, professional cover letters. Output plain text only.";
 
 const FALLBACK_MODELS = [
@@ -15,6 +15,12 @@ const FALLBACK_MODELS = [
 
 const MAX_ATTEMPTS = 3;
 const RETRY_DELAY_MS = 1200;
+
+export type GeminiGenerateOptions = {
+  systemInstruction?: string;
+  temperature?: number;
+  maxOutputTokens?: number;
+};
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -27,13 +33,16 @@ function isRetryable(error: unknown): boolean {
   return false;
 }
 
-function createModel(modelName: string): GenerativeModel {
+function createModel(
+  modelName: string,
+  options: GeminiGenerateOptions = {},
+): GenerativeModel {
   return getGeminiClient().getGenerativeModel({
     model: modelName,
-    systemInstruction: SYSTEM_INSTRUCTION,
+    systemInstruction: options.systemInstruction ?? DEFAULT_SYSTEM_INSTRUCTION,
     generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 800,
+      temperature: options.temperature ?? 0.7,
+      maxOutputTokens: options.maxOutputTokens ?? 800,
     },
   });
 }
@@ -44,11 +53,14 @@ function modelChain(): string[] {
   return [...new Set(chain)];
 }
 
-export async function generateWithGemini(prompt: string): Promise<string> {
+export async function generateWithGemini(
+  prompt: string,
+  options: GeminiGenerateOptions = {},
+): Promise<string> {
   let lastError: unknown;
 
   for (const modelName of modelChain()) {
-    const model = createModel(modelName);
+    const model = createModel(modelName, options);
 
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       try {

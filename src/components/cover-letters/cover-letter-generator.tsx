@@ -98,7 +98,7 @@ export function CoverLetterGenerator({
               disabled={generating}
             />
             <p className="text-xs text-zinc-500">
-              More detail in the posting usually leads to a more specific draft.
+              Paste the full job posting for a detailed 4-paragraph letter (~300 words). More detail usually means a stronger, more specific draft.
             </p>
           </div>
 

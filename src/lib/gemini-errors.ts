@@ -29,6 +29,9 @@ export function getGeminiErrorMessage(error: unknown): string {
     if (message.includes("empty response")) {
       return "The AI returned an empty response. Please try again.";
     }
+    if (message.includes("too short")) {
+      return error.message;
+    }
     if (message.includes("quota") || message.includes("resource_exhausted")) {
       return "Gemini quota exceeded. Check usage in Google AI Studio, then try again.";
     }
