@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Bot,
   Briefcase,
   FileSearch,
   LayoutDashboard,
@@ -18,6 +19,7 @@ import { signOutAction } from "@/server/actions/auth.actions";
 const allNavItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/applications", label: "Applications", icon: Briefcase },
+  { href: "/assistant", label: "AI Assistant", icon: Bot },
   { href: "/cover-letters", label: "Cover letters", icon: PenLine },
   { href: "/resume-analyzer", label: "Resume analyzer", icon: FileSearch },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },

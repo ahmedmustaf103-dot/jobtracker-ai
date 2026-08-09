@@ -73,8 +73,9 @@ flowchart TB
   end
 
   subgraph ai [AI providers]
-    Gemini[Gemini 2.5 Flash — cover letters]
+    Gemini[Gemini 2.5 Flash — cover letters + agent]
     OpenAI[OpenAI — resume analyzer local]
+    Remotive[Remotive API — remote jobs]
   end
 
   UI --> MW
@@ -85,6 +86,8 @@ flowchart TB
   Prisma --> PG
   SA --> Gemini
   SA --> OpenAI
+  API --> Gemini
+  API --> Remotive
 ```
 
 | Concern | Approach |
@@ -104,6 +107,7 @@ flowchart TB
 - **Dashboard** — totals, pipeline breakdown, recent activity, onboarding for new users
 - **Settings** — update display name, change password
 - **AI cover letters** — generate tailored cover letters with **Gemini 2.5 Flash** (Google AI Studio free tier)
+- **AI Job Search Assistant** — Gemini agent with 5 tools (remote job search, pipeline stats, application search/save/status updates)
 - **AI resume analyzer** — upload PDF/DOCX for ATS score, strengths, weaknesses, and keyword tips (OpenAI)
 
 ## Stack
