@@ -75,7 +75,7 @@ flowchart TB
   subgraph ai [AI providers]
     Gemini[Gemini 2.5 Flash — cover letters + agent]
     OpenAI[OpenAI — resume analyzer local]
-    Remotive[Remotive API — remote jobs]
+    Jobicy[Jobicy API — remote jobs]
   end
 
   UI --> MW
@@ -87,7 +87,7 @@ flowchart TB
   SA --> Gemini
   SA --> OpenAI
   API --> Gemini
-  API --> Remotive
+  API --> Jobicy
 ```
 
 | Concern | Approach |

@@ -28,19 +28,22 @@ describe("executeAgentTool", () => {
   });
 
   it("searches remote jobs", async () => {
-    vi.mocked(searchRemoteJobs).mockResolvedValue([
-      {
-        id: 1,
-        title: "Frontend Engineer",
-        company: "Remote Co",
-        location: "Worldwide",
-        url: "https://example.com/jobs/1",
-        salary: null,
-        category: "Software Development",
-        tags: ["react"],
-        publicationDate: null,
-      },
-    ]);
+    vi.mocked(searchRemoteJobs).mockResolvedValue({
+      source: "jobicy",
+      jobs: [
+        {
+          id: 1,
+          title: "Frontend Engineer",
+          company: "Remote Co",
+          location: "Worldwide",
+          url: "https://example.com/jobs/1",
+          salary: null,
+          category: "Software Development",
+          tags: ["react"],
+          publicationDate: null,
+        },
+      ],
+    });
 
     const result = await executeAgentTool(
       "search_remote_jobs",
@@ -49,7 +52,7 @@ describe("executeAgentTool", () => {
     );
 
     expect(searchRemoteJobs).toHaveBeenCalledWith("react", 3);
-    expect(result.result).toMatchObject({ count: 1, source: "remotive" });
+    expect(result.result).toMatchObject({ count: 1, source: "jobicy" });
   });
 
   it("returns pipeline stats", async () => {

@@ -268,7 +268,7 @@ export function JobSearchAssistant() {
           <ul className="space-y-2 text-xs text-zinc-400">
             <li>
               <span className="font-medium text-zinc-300">search_remote_jobs</span>
-              {" — "}live remote openings
+              {" — "}relevant remote openings
             </li>
             <li>
               <span className="font-medium text-zinc-300">get_pipeline_stats</span>

@@ -2,7 +2,7 @@ export function buildAgentSystemInstruction(candidateName: string) {
   return `You are JobTracker AI's Job Search Assistant — a practical agent that helps ${candidateName} find roles and manage their application pipeline.
 
 You have tools. Use them when they improve your answer:
-- search_remote_jobs: find open remote roles from a public job board
+- search_remote_jobs: find open remote roles from live job boards (returns only relevant matches)
 - get_pipeline_stats: summarize the user's tracked applications by status
 - search_applications: look up roles already in their tracker
 - save_application: add a role to their tracker (wishlist by default)

@@ -22,7 +22,7 @@ export const AGENT_TOOL_DECLARATIONS: FunctionDeclaration[] = [
   {
     name: "search_remote_jobs",
     description:
-      "Search a public remote job board for open roles matching a query (e.g. React, product designer, data engineer).",
+      "Search live remote job listings matching a query (e.g. React, product designer, TypeScript). Returns only relevant roles with title, company, location, and URL.",
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
@@ -166,11 +166,18 @@ async function executeSearchRemoteJobs(args: unknown) {
   }
 
   try {
-    const jobs = await searchRemoteJobs(parsed.data.query, parsed.data.limit);
+    const { jobs, source } = await searchRemoteJobs(
+      parsed.data.query,
+      parsed.data.limit,
+    );
     return {
       count: jobs.length,
       jobs,
-      source: "remotive",
+      source,
+      note:
+        jobs.length === 0
+          ? "No relevant remote roles matched that query. Try a tighter skill keyword (e.g. React, Python, designer)."
+          : undefined,
     };
   } catch (error) {
     return {
