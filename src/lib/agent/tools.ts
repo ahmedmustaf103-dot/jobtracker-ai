@@ -4,19 +4,14 @@ import {
 } from "@google/generative-ai";
 
 import type { AgentContext, AgentToolCallTrace } from "@/lib/agent/types";
-import { searchRemoteJobs } from "@/lib/agent/remote-jobs";
 import {
-  createApplication,
-  getApplicationStats,
-  listApplications,
-  updateApplicationStatus,
-} from "@/server/services/applications.service";
-import {
-  saveApplicationArgsSchema,
-  searchApplicationsArgsSchema,
-  searchRemoteJobsArgsSchema,
-  updateApplicationStatusArgsSchema,
-} from "@/validations/agent";
+  getApplicationsCapability,
+  getPipelineStatsCapability,
+  saveApplicationCapability,
+  searchJobsCapability,
+  updateApplicationStatusCapability,
+} from "@/lib/capabilities/handlers";
+import type { CapabilityResult } from "@/lib/capabilities/types";
 
 export const AGENT_TOOL_DECLARATIONS: FunctionDeclaration[] = [
   {
@@ -135,145 +130,18 @@ export const AGENT_TOOL_DECLARATIONS: FunctionDeclaration[] = [
   },
 ];
 
-function serializeApplication(app: {
-  id: string;
-  company: string;
-  title: string;
-  location: string | null;
-  url: string | null;
-  status: string;
-  salary: string | null;
-  updatedAt: Date;
-}) {
+function toAgentResult<T>(result: CapabilityResult<T>): T | { error: string } {
+  if (!result.ok) {
+    return { error: result.error };
+  }
+  return result.data;
+}
+
+function toCapabilityUser(ctx: AgentContext) {
   return {
-    id: app.id,
-    company: app.company,
-    title: app.title,
-    location: app.location,
-    url: app.url,
-    status: app.status,
-    salary: app.salary,
-    updatedAt: app.updatedAt.toISOString(),
-  };
-}
-
-async function executeSearchRemoteJobs(args: unknown) {
-  const parsed = searchRemoteJobsArgsSchema.safeParse(args);
-  if (!parsed.success) {
-    return {
-      error: parsed.error.issues[0]?.message ?? "Invalid search arguments",
-    };
-  }
-
-  try {
-    const { jobs, source } = await searchRemoteJobs(
-      parsed.data.query,
-      parsed.data.limit,
-    );
-    return {
-      count: jobs.length,
-      jobs,
-      source,
-      note:
-        jobs.length === 0
-          ? "No relevant remote roles matched that query. Try a tighter skill keyword (e.g. React, Python, designer)."
-          : undefined,
-    };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "Could not search remote jobs right now.",
-    };
-  }
-}
-
-async function executeGetPipelineStats(ctx: AgentContext) {
-  const stats = await getApplicationStats(ctx.userId);
-  return {
-    total: stats.total,
-    byStatus: stats.byStatus,
-    recent: stats.recent.map(serializeApplication),
-  };
-}
-
-async function executeSearchApplications(ctx: AgentContext, args: unknown) {
-  const parsed = searchApplicationsArgsSchema.safeParse(args);
-  if (!parsed.success) {
-    return {
-      error: parsed.error.issues[0]?.message ?? "Invalid search arguments",
-    };
-  }
-
-  const { query, status, limit } = parsed.data;
-  const apps = await listApplications(ctx.userId, {
-    status,
-    limit: query ? 50 : limit,
-  });
-
-  const needle = query?.trim().toLowerCase();
-  const filtered = needle
-    ? apps.filter(
-        (app) =>
-          app.company.toLowerCase().includes(needle) ||
-          app.title.toLowerCase().includes(needle) ||
-          (app.location?.toLowerCase().includes(needle) ?? false),
-      )
-    : apps;
-
-  const results = filtered.slice(0, limit).map(serializeApplication);
-  return { count: results.length, applications: results };
-}
-
-async function executeSaveApplication(ctx: AgentContext, args: unknown) {
-  const parsed = saveApplicationArgsSchema.safeParse(args);
-  if (!parsed.success) {
-    return {
-      error: parsed.error.issues[0]?.message ?? "Invalid application data",
-    };
-  }
-
-  const created = await createApplication(ctx.userId, {
-    company: parsed.data.company,
-    title: parsed.data.title,
-    location: parsed.data.location,
-    url: parsed.data.url,
-    salary: parsed.data.salary,
-    notes: parsed.data.notes,
-    status: parsed.data.status,
-  });
-
-  return {
-    saved: true,
-    application: serializeApplication(created),
-  };
-}
-
-async function executeUpdateApplicationStatus(
-  ctx: AgentContext,
-  args: unknown,
-) {
-  const parsed = updateApplicationStatusArgsSchema.safeParse(args);
-  if (!parsed.success) {
-    return {
-      error: parsed.error.issues[0]?.message ?? "Invalid status update",
-    };
-  }
-
-  const updated = await updateApplicationStatus(
-    ctx.userId,
-    parsed.data.applicationId,
-    parsed.data.status,
-  );
-
-  if (!updated) {
-    return { error: "Application not found for this user." };
-  }
-
-  return {
-    updated: true,
-    application: serializeApplication(updated),
+    userId: ctx.userId,
+    candidateName: ctx.candidateName,
+    email: "",
   };
 }
 
@@ -282,23 +150,26 @@ export async function executeAgentTool(
   args: Record<string, unknown>,
   ctx: AgentContext,
 ): Promise<AgentToolCallTrace> {
+  const user = toCapabilityUser(ctx);
   let result: unknown;
 
   switch (name) {
     case "search_remote_jobs":
-      result = await executeSearchRemoteJobs(args);
+      result = toAgentResult(await searchJobsCapability(args));
       break;
     case "get_pipeline_stats":
-      result = await executeGetPipelineStats(ctx);
+      result = toAgentResult(await getPipelineStatsCapability(user));
       break;
     case "search_applications":
-      result = await executeSearchApplications(ctx, args);
+      result = toAgentResult(await getApplicationsCapability(user, args));
       break;
     case "save_application":
-      result = await executeSaveApplication(ctx, args);
+      result = toAgentResult(await saveApplicationCapability(user, args));
       break;
     case "update_application_status":
-      result = await executeUpdateApplicationStatus(ctx, args);
+      result = toAgentResult(
+        await updateApplicationStatusCapability(user, args),
+      );
       break;
     default:
       result = { error: `Unknown tool: ${name}` };

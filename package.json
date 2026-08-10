@@ -11,6 +11,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:prod": "E2E_BASE_URL=https://jobtracker-ai-tau.vercel.app playwright test",
+    "mcp": "tsx mcp/src/server.ts",
+    "mcp:inspect": "npx @modelcontextprotocol/inspector npm run mcp",
+    "verify:mcp": "node scripts/verify-mcp.mjs",
     "verify:gemini": "node scripts/verify-gemini.mjs",
     "vercel:sync-gemini": "node scripts/sync-gemini-to-vercel.mjs",
     "screenshots": "node scripts/capture-screenshots.mjs",
@@ -30,6 +33,8 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
     "@google/generative-ai": "^0.24.1",
+    "@modelcontextprotocol/client": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.0.0",
     "@prisma/client": "^6.19.3",
     "@radix-ui/react-slot": "^1.2.4",
     "@vercel/blob": "^2.5.0",

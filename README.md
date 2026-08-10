@@ -78,6 +78,11 @@ flowchart TB
     Jobicy[Jobicy API — remote jobs]
   end
 
+  subgraph mcp [MCP stdio]
+    McpServer[JobTracker MCP server]
+    Caps[Shared capability handlers]
+  end
+
   UI --> MW
   MW --> SA
   MW --> API
@@ -88,6 +93,11 @@ flowchart TB
   SA --> OpenAI
   API --> Gemini
   API --> Jobicy
+  API --> Caps
+  McpServer --> Caps
+  Caps --> Prisma
+  Caps --> Gemini
+  Caps --> Jobicy
 ```
 
 | Concern | Approach |
@@ -108,6 +118,7 @@ flowchart TB
 - **Settings** — update display name, change password
 - **AI cover letters** — generate tailored cover letters with **Gemini 2.5 Flash** (Google AI Studio free tier)
 - **AI Job Search Assistant** — Gemini agent with 5 tools (remote job search, pipeline stats, application search/save/status updates)
+- **MCP server** — stdio MCP tools reusing the same capabilities (jobs, applications, cover letters)
 - **AI resume analyzer** — upload PDF/DOCX for ATS score, strengths, weaknesses, and keyword tips (OpenAI)
 
 ## Stack
@@ -123,6 +134,7 @@ flowchart TB
 | Validation | Zod |
 | AI (cover letters) | Google Gemini 2.5 Flash |
 | AI (resume) | OpenAI API |
+| MCP | `@modelcontextprotocol/server` (stdio) |
 
 ## Project structure
 
@@ -139,16 +151,77 @@ src/
 │   ├── marketing/       # Landing page sections
 │   ├── cover-letters/   # Cover letter generator UI
 │   └── resume-analyzer/ # Resume upload & analysis UI
-├── lib/                 # Shared utilities (db, auth, gemini, openai, rate-limit)
+├── lib/
+│   ├── agent/           # Gemini job-search agent (Phase 2)
+│   ├── capabilities/    # Shared handlers used by agent + MCP
+│   └── …                # db, auth, gemini, openai, rate-limit
 ├── server/
 │   ├── actions/         # Server Actions
 │   └── services/        # Data / business logic
 ├── types/               # Shared TypeScript types
 └── validations/         # Zod schemas
+mcp/
+└── src/server.ts        # MCP stdio entrypoint (Phase 3)
 prisma/
 ├── schema.prisma        # Database models
 └── migrations/          # SQL migrations
+docs/
+└── mcp-architecture.md  # MCP architecture notes
 ```
+
+## MCP server (Phase 3)
+
+The MCP server exposes JobTracker capabilities to local MCP hosts over **stdio**. It reuses the same Prisma services and job/cover-letter logic as the app — it does **not** replace the Gemini assistant UI.
+
+See [docs/mcp-architecture.md](./docs/mcp-architecture.md) for the full diagram.
+
+### Available tools
+
+| Tool | What it does |
+|------|----------------|
+| `search_jobs` | Search remote openings (Jobicy + Remotive fallback) |
+| `get_application_details` | Load a tracked application + timeline (ownership-scoped) |
+| `get_applications` | List/search the configured user's applications |
+| `generate_cover_letter` | Generate with Gemini and **save** (same as UI) |
+| `update_application` | Full field update with optional status (ownership-checked) |
+| `save_application` | Create a tracked application |
+| `get_pipeline_stats` | Totals by status + recent applications |
+
+### Run locally
+
+```bash
+# In .env / .env.local — pick one identity for the local MCP process
+MCP_USER_EMAIL=demo@jobtracker.ai
+# or MCP_USER_ID=<cuid>
+
+npm run mcp              # stdio server (for MCP hosts)
+npm run mcp:inspect      # open MCP Inspector
+npm run verify:mcp       # automated connect + tool checks
+```
+
+Example Cursor / Claude Desktop config:
+
+```json
+{
+  "mcpServers": {
+    "jobtracker-ai": {
+      "command": "npm",
+      "args": ["run", "mcp"],
+      "cwd": "/absolute/path/to/jobtracker-ai",
+      "env": {
+        "MCP_USER_EMAIL": "demo@jobtracker.ai"
+      }
+    }
+  }
+}
+```
+
+### MCP security
+
+- Identity is **only** `MCP_USER_ID` or `MCP_USER_EMAIL` on the local process — not caller-supplied user ids.
+- All DB tools use existing `userId`-scoped services; other users’ rows are not returned or updated.
+- Tool responses never include env vars or API keys.
+- Intended for a **trusted local host**. Shared remote MCP auth is out of scope for Phase 3.
 
 ## Getting started
 
@@ -175,6 +248,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | `OPENAI_MODEL` | No | OpenAI model override (defaults to `gpt-4o-mini`) |
 | `NEXT_PUBLIC_APP_URL` | No | Public URL used in site metadata |
 | `NEXT_PUBLIC_RESUME_ANALYZER_ENABLED` | No | Set `"true"` to enable resume upload in production (needs cloud storage) |
+| `MCP_USER_EMAIL` | MCP | Email of the local user the MCP server acts as (alternative to `MCP_USER_ID`) |
+| `MCP_USER_ID` | MCP | User id the local MCP server acts as (alternative to `MCP_USER_EMAIL`) |
 
 ### Cover letter API
 
