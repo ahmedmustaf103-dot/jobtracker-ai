@@ -14,6 +14,8 @@
     "mcp": "tsx mcp/src/server.ts",
     "mcp:inspect": "npx @modelcontextprotocol/inspector npm run mcp",
     "verify:mcp": "node scripts/verify-mcp.mjs",
+    "eval": "node scripts/run-evals.mjs",
+    "eval:mcp": "node scripts/verify-mcp.mjs",
     "verify:gemini": "node scripts/verify-gemini.mjs",
     "vercel:sync-gemini": "node scripts/sync-gemini-to-vercel.mjs",
     "screenshots": "node scripts/capture-screenshots.mjs",

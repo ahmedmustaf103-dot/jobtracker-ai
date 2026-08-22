@@ -119,6 +119,7 @@ flowchart TB
 - **AI cover letters** — generate tailored cover letters with **Gemini 2.5 Flash** (Google AI Studio free tier)
 - **AI Job Search Assistant** — Gemini agent with 5 tools (remote job search, pipeline stats, application search/save/status updates)
 - **MCP server** — stdio MCP tools reusing the same capabilities (jobs, applications, cover letters)
+- **Evals** — automated capability/agent/MCP checks (`npm run eval`) plus live MCP smoke
 - **AI resume analyzer** — upload PDF/DOCX for ATS score, strengths, weaknesses, and keyword tips (OpenAI)
 
 ## Stack
@@ -222,6 +223,20 @@ Example Cursor / Claude Desktop config:
 - All DB tools use existing `userId`-scoped services; other users’ rows are not returned or updated.
 - Tool responses never include env vars or API keys.
 - Intended for a **trusted local host**. Shared remote MCP auth is out of scope for Phase 3.
+
+## Evals & error handling (Phase 4)
+
+Automated checks for tool routing, ownership, invalid input, job-search relevance, cover-letter generate+save, and MCP response formatting.
+
+```bash
+npm run eval        # deterministic eval suite
+npm run eval:mcp    # live MCP smoke (alias of verify:mcp)
+npm test            # full unit + eval suite
+```
+
+Details: [docs/evals.md](./docs/evals.md) · [evals/README.md](./evals/README.md)
+
+Capability failures are sanitized so secrets/connection strings never appear in tool or agent error payloads.
 
 ## Getting started
 

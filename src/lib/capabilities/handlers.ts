@@ -1,3 +1,7 @@
+import {
+  capabilityUnknownError,
+  capabilityValidationError,
+} from "@/lib/capabilities/errors";
 import { searchRemoteJobs } from "@/lib/agent/remote-jobs";
 import {
   serializeApplication,
@@ -29,14 +33,14 @@ import {
 } from "@/validations/capabilities";
 
 function validationError(message: string): CapabilityResult<never> {
-  return { ok: false, error: message };
+  return capabilityValidationError(message);
 }
 
-function fromUnknownError(error: unknown, fallback: string): CapabilityResult<never> {
-  if (error instanceof Error && error.message) {
-    return { ok: false, error: error.message };
-  }
-  return { ok: false, error: fallback };
+function fromUnknownError(
+  error: unknown,
+  fallback: string,
+): CapabilityResult<never> {
+  return capabilityUnknownError(error, fallback);
 }
 
 export async function searchJobsCapability(
