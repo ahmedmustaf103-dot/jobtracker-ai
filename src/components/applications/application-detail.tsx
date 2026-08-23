@@ -5,6 +5,7 @@ import { AddApplicationNoteForm } from "@/components/applications/add-applicatio
 import { ApplicationStatusSelect } from "@/components/applications/application-status-select";
 import { ApplicationStatusTimeline } from "@/components/applications/application-status-timeline";
 import { DeleteApplicationButton } from "@/components/applications/delete-application-button";
+import { JobMatchPanel } from "@/components/applications/job-match-panel";
 import { StatusBadge } from "@/components/applications/status-badge";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
@@ -12,10 +13,22 @@ import { formatDate } from "@/lib/utils";
 import type { getApplicationWithEvents } from "@/server/services/applications.service";
 
 type ApplicationDetailProps = {
-  application: NonNullable<Awaited<ReturnType<typeof getApplicationWithEvents>>>;
+  application: NonNullable<
+    Awaited<ReturnType<typeof getApplicationWithEvents>>
+  >;
+  hasResume: boolean;
+  resumeFileName?: string | null;
+  defaultJobDescription?: string;
+  defaultJobDescriptionSource?: "notes" | "cover_letter" | null;
 };
 
-export function ApplicationDetail({ application }: ApplicationDetailProps) {
+export function ApplicationDetail({
+  application,
+  hasResume,
+  resumeFileName,
+  defaultJobDescription = "",
+  defaultJobDescriptionSource = null,
+}: ApplicationDetailProps) {
   const coverLetterHref = `/cover-letters?company=${encodeURIComponent(application.company)}&role=${encodeURIComponent(application.title)}`;
 
   return (
@@ -95,8 +108,20 @@ export function ApplicationDetail({ application }: ApplicationDetailProps) {
           </Panel>
         ) : null}
 
+        <JobMatchPanel
+          applicationId={application.id}
+          company={application.company}
+          role={application.title}
+          hasResume={hasResume}
+          resumeFileName={resumeFileName}
+          defaultJobDescription={defaultJobDescription}
+          defaultJobDescriptionSource={defaultJobDescriptionSource}
+        />
+
         <Panel>
-          <h2 className="text-sm font-semibold text-zinc-100">Activity timeline</h2>
+          <h2 className="text-sm font-semibold text-zinc-100">
+            Activity timeline
+          </h2>
           <p className="mt-1 text-sm text-zinc-500">
             Status changes and notes are recorded automatically.
           </p>
@@ -111,7 +136,9 @@ export function ApplicationDetail({ application }: ApplicationDetailProps) {
           <h2 className="text-sm font-semibold text-zinc-100">Quick actions</h2>
           <div className="mt-4 flex flex-col gap-2">
             <Button asChild variant="outline" size="sm" className="justify-start">
-              <Link href={`/applications/${application.id}/edit`}>Edit details</Link>
+              <Link href={`/applications/${application.id}/edit`}>
+                Edit details
+              </Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="justify-start">
               <Link href={coverLetterHref}>

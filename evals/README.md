@@ -12,6 +12,7 @@ Automated checks for agent tools, shared capabilities, MCP formatting, ownership
 | `job-search` | Empty results, operational errors, secret scrubbing |
 | `job-search-relevance` | Relevance scoring prefers real matches |
 | `cover-letter` | Validate → generate → save; Gemini errors stay safe |
+| `job-match` | Strong/partial/weak fixtures, missing resume/JD, ownership, malformed JSON |
 | `mcp/src/format.test.ts` | MCP success/error JSON contract |
 
 These are **deterministic** (mocked services). Live MCP smoke remains:

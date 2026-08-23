@@ -20,6 +20,8 @@ export type GeminiGenerateOptions = {
   systemInstruction?: string;
   temperature?: number;
   maxOutputTokens?: number;
+  /** When set, asks Gemini for structured output (e.g. application/json). */
+  responseMimeType?: string;
 };
 
 function sleep(ms: number) {
@@ -43,6 +45,9 @@ function createModel(
     generationConfig: {
       temperature: options.temperature ?? 0.7,
       maxOutputTokens: options.maxOutputTokens ?? 800,
+      ...(options.responseMimeType
+        ? { responseMimeType: options.responseMimeType }
+        : {}),
     },
   });
 }

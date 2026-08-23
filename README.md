@@ -120,6 +120,7 @@ flowchart TB
 - **AI Job Search Assistant** — Gemini agent with 5 tools (remote job search, pipeline stats, application search/save/status updates)
 - **MCP server** — stdio MCP tools reusing the same capabilities (jobs, applications, cover letters)
 - **Evals** — automated capability/agent/MCP checks (`npm run eval`) plus live MCP smoke
+- **AI Job Match** — on-demand resume ↔ job description score on application detail pages
 - **AI resume analyzer** — upload PDF/DOCX for ATS score, strengths, weaknesses, and keyword tips (OpenAI)
 
 ## Stack
@@ -237,6 +238,12 @@ npm test            # full unit + eval suite
 Details: [docs/evals.md](./docs/evals.md) · [evals/README.md](./evals/README.md)
 
 Capability failures are sanitized so secrets/connection strings never appear in tool or agent error payloads.
+
+## AI Job Match
+
+On application detail pages, compare your latest resume to a job description for a 0–100% match score, skills overlap, gaps, and a recommendation.
+
+See [docs/job-match.md](./docs/job-match.md) for the scoring model and limitations.
 
 ## Getting started
 

@@ -37,6 +37,14 @@ export async function getResumeById(userId: string, id: string) {
   });
 }
 
+/** Most recently uploaded resume for this user (ownership-scoped). */
+export async function getLatestResume(userId: string) {
+  return prisma.resume.findFirst({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 type CreateResumeInput = {
   fileName: string;
   mimeType: string;

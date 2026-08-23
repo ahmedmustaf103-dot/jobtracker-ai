@@ -12,16 +12,26 @@ import type {
   CapabilityUser,
 } from "@/lib/capabilities/types";
 import { generateCoverLetterText } from "@/lib/cover-letter/generate";
+import { generateJobMatch } from "@/lib/job-match/generate";
+import {
+  resolveJobDescription,
+  type JobDescriptionSource,
+} from "@/lib/job-match/resolve-jd";
 import { getGeminiErrorMessage } from "@/lib/gemini-errors";
 import {
   createApplication,
+  getApplicationById,
   getApplicationStats,
   getApplicationWithEvents,
   listApplications,
   updateApplication,
   updateApplicationStatus,
 } from "@/server/services/applications.service";
-import { createCoverLetter } from "@/server/services/cover-letters.service";
+import {
+  createCoverLetter,
+  findLatestCoverLetterJobDescription,
+} from "@/server/services/cover-letters.service";
+import { getLatestResume } from "@/server/services/resumes.service";
 import {
   generateCoverLetterArgsSchema,
   getApplicationDetailsArgsSchema,
@@ -31,6 +41,10 @@ import {
   updateApplicationArgsSchema,
   updateApplicationStatusArgsSchema,
 } from "@/validations/capabilities";
+import {
+  analyzeJobMatchArgsSchema,
+  type JobMatchResult,
+} from "@/validations/job-match";
 
 function validationError(message: string): CapabilityResult<never> {
   return capabilityValidationError(message);
@@ -339,6 +353,93 @@ export async function generateCoverLetterCapability(
       },
     };
   } catch (error) {
+    return { ok: false, error: getGeminiErrorMessage(error) };
+  }
+}
+
+export async function analyzeJobMatchCapability(
+  user: CapabilityUser,
+  args: unknown,
+): Promise<
+  CapabilityResult<{
+    match: JobMatchResult;
+    dataUsed: {
+      resumeFileName: string;
+      jobDescriptionSource: JobDescriptionSource;
+    };
+  }>
+> {
+  const parsed = analyzeJobMatchArgsSchema.safeParse(args);
+  if (!parsed.success) {
+    return validationError(
+      parsed.error.issues[0]?.message ?? "Invalid job match input",
+    );
+  }
+
+  const application = await getApplicationById(
+    user.userId,
+    parsed.data.applicationId,
+  );
+  if (!application) {
+    return { ok: false, error: "Application not found for this user." };
+  }
+
+  const resume = await getLatestResume(user.userId);
+  if (!resume?.extractedText?.trim() || resume.extractedText.trim().length < 50) {
+    return {
+      ok: false,
+      error:
+        "No usable resume found. Upload a resume in Resume analyzer first.",
+    };
+  }
+
+  const cover = await findLatestCoverLetterJobDescription(
+    user.userId,
+    application.company,
+    application.title,
+  );
+
+  const resolved = resolveJobDescription({
+    pasted: parsed.data.jobDescription,
+    notes: application.notes,
+    coverLetterJobDescription: cover?.jobDescription,
+  });
+
+  if (!resolved) {
+    return {
+      ok: false,
+      error:
+        "Paste a job description (at least 40 characters), or add a longer description in application notes / a matching cover letter.",
+    };
+  }
+
+  try {
+    const match = await generateJobMatch({
+      company: application.company,
+      role: application.title,
+      jobDescription: resolved.text,
+      resumeText: resume.extractedText,
+      candidateName: user.candidateName,
+    });
+
+    return {
+      ok: true,
+      data: {
+        match,
+        dataUsed: {
+          resumeFileName: resume.fileName,
+          jobDescriptionSource: resolved.source,
+        },
+      },
+    };
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.message.includes("invalid JSON") ||
+        error.message.includes("validate the AI job match"))
+    ) {
+      return { ok: false, error: error.message };
+    }
     return { ok: false, error: getGeminiErrorMessage(error) };
   }
 }

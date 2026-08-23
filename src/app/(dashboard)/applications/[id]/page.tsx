@@ -5,8 +5,11 @@ import { notFound } from "next/navigation";
 import { ApplicationDetail } from "@/components/applications/application-detail";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { Button } from "@/components/ui/button";
+import { resolveJobDescription } from "@/lib/job-match/resolve-jd";
 import { getSession } from "@/lib/auth/session";
 import { getApplicationWithEvents } from "@/server/services/applications.service";
+import { findLatestCoverLetterJobDescription } from "@/server/services/cover-letters.service";
+import { getLatestResume } from "@/server/services/resumes.service";
 
 type ApplicationDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -44,6 +47,24 @@ export default async function ApplicationDetailPage({
   const application = await getApplicationWithEvents(userId, id);
   if (!application) notFound();
 
+  const [resume, cover] = await Promise.all([
+    getLatestResume(userId),
+    findLatestCoverLetterJobDescription(
+      userId,
+      application.company,
+      application.title,
+    ),
+  ]);
+
+  const resolved = resolveJobDescription({
+    notes: application.notes,
+    coverLetterJobDescription: cover?.jobDescription,
+  });
+
+  const hasResume = Boolean(
+    resume?.extractedText && resume.extractedText.trim().length >= 50,
+  );
+
   return (
     <div className="space-y-8">
       <DashboardHeader
@@ -54,7 +75,15 @@ export default async function ApplicationDetailPage({
           <Link href="/applications">Back to list</Link>
         </Button>
       </DashboardHeader>
-      <ApplicationDetail application={application} />
+      <ApplicationDetail
+        application={application}
+        hasResume={hasResume}
+        resumeFileName={resume?.fileName}
+        defaultJobDescription={resolved?.text ?? ""}
+        defaultJobDescriptionSource={
+          resolved?.source === "paste" ? null : (resolved?.source ?? null)
+        }
+      />
     </div>
   );
 }

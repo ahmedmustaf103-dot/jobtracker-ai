@@ -21,9 +21,9 @@ See [evals/README.md](../evals/README.md).
 
 | Check | Command | Result |
 |-------|---------|--------|
-| Deterministic evals | `npm run eval` | **22/22 passed** |
-| Unit + evals | `npm test` | **94/94 passed** |
-| Live MCP smoke | `npm run eval:mcp` | run locally with DB + `MCP_USER_*` |
+| Deterministic evals | `npm run eval` | **31/31 passed** |
+| Unit + evals | `npm test` | **119/119 passed** |
+| Live MCP smoke | `npm run eval:mcp` | **19/19 passed** |
 
 ## Out of scope
 

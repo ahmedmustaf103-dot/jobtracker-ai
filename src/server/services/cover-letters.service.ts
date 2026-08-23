@@ -15,6 +15,23 @@ export async function listCoverLetters(userId: string, limit = 20) {
   });
 }
 
+/** Latest cover letter JD for the same company + role (heuristic; no FK). */
+export async function findLatestCoverLetterJobDescription(
+  userId: string,
+  company: string,
+  role: string,
+) {
+  return prisma.coverLetter.findFirst({
+    where: {
+      userId,
+      company: { equals: company, mode: "insensitive" },
+      role: { equals: role, mode: "insensitive" },
+    },
+    orderBy: { createdAt: "desc" },
+    select: { jobDescription: true },
+  });
+}
+
 export async function getCoverLetterById(userId: string, id: string) {
   return prisma.coverLetter.findFirst({ where: { id, userId } });
 }
