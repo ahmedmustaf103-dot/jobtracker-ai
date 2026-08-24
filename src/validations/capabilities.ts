@@ -37,8 +37,16 @@ export const updateApplicationArgsSchema = z
     status: applicationStatusSchema.optional(),
   })
   .superRefine((value, ctx) => {
-    const { applicationId: _id, ...fields } = value;
-    const hasUpdate = Object.values(fields).some((v) => v !== undefined);
+    const updatableKeys = [
+      "company",
+      "title",
+      "location",
+      "url",
+      "salary",
+      "notes",
+      "status",
+    ] as const;
+    const hasUpdate = updatableKeys.some((key) => value[key] !== undefined);
     if (!hasUpdate) {
       ctx.addIssue({
         code: "custom",
