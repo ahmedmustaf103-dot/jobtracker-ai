@@ -4,21 +4,19 @@
 
 **Live demo:** [https://jobtracker-ai-tau.vercel.app](https://jobtracker-ai-tau.vercel.app) · **GitHub:** [ahmedmustaf103-dot/jobtracker-ai](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
 
-> **CV one-liner:** JobTracker AI — full-stack job search SaaS (Next.js, Prisma, Auth.js, Gemini). [Live demo](https://jobtracker-ai-tau.vercel.app) + [GitHub](https://github.com/ahmedmustaf103-dot/jobtracker-ai).
+> **CV one-liner:** JobTracker AI — full-stack job search SaaS (Next.js, Prisma, Auth.js) with a Gemini agent, MCP server, evals, and AI job-match scoring. [Live demo](https://jobtracker-ai-tau.vercel.app) + [GitHub](https://github.com/ahmedmustaf103-dot/jobtracker-ai).
 
-### CV bullet (copy-paste)
+**Portfolio write-up:** [docs/case-study.md](./docs/case-study.md)
 
-Use this on your CV, LinkedIn, or cover letter:
+### CV / LinkedIn (copy-paste)
 
-- **JobTracker AI** — Full-stack job search SaaS with auth, application pipeline, dashboard analytics, and AI cover letters (Gemini). Built with Next.js 15, TypeScript, Prisma, PostgreSQL, and Auth.js. [Live demo](https://jobtracker-ai-tau.vercel.app) · [GitHub](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
+- **JobTracker AI** — Full-stack job search SaaS: Auth.js + Prisma pipeline, Gemini cover letters & tool-calling assistant, shared MCP capabilities, deterministic evals, and Zod-validated resume↔JD match scores. Next.js 15, TypeScript, PostgreSQL/Neon, Vercel. [Live demo](https://jobtracker-ai-tau.vercel.app) · [GitHub](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
 
 Shorter version:
 
-- **JobTracker AI** — Next.js SaaS for tracking job applications and generating AI cover letters. [Demo](https://jobtracker-ai-tau.vercel.app) · [Code](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
+- **JobTracker AI** — Next.js SaaS for tracking applications, with an AI agent, MCP server, evals, and job-match scoring. [Demo](https://jobtracker-ai-tau.vercel.app) · [Code](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
 
-SaaS for tracking job applications — with AI cover letters and resume analysis.
-
-Track every role from wishlist to offer: status pipeline, quick updates, filters, a stats dashboard, and AI tools to sharpen your applications.
+Track every role from wishlist to offer — then use AI where it helps: cover letters, resume feedback, a job-search assistant, and on-demand match scores.
 
 ### Try it now
 
@@ -27,7 +25,7 @@ Track every role from wishlist to offer: status pipeline, quick updates, filters
 | **Demo login** | `demo@jobtracker.ai` / `password123` |
 | **Or** | [Create a free account](https://jobtracker-ai-tau.vercel.app/register) |
 
-> **Live demo:** Application tracking, application detail timelines, AI cover letters, and resume upload (with Vercel Blob) work in production.
+> **Live demo:** Application tracking, timelines, AI cover letters, Job Match UI, assistant, and resume upload (Vercel Blob) work in production.
 
 ## Demo walkthrough (~60s)
 
@@ -39,9 +37,13 @@ Re-record after UI changes: `npm run record:demo`
 
 ## Why I built this
 
-I built JobTracker AI to solve a problem I kept hitting during job searches: tracking roles in spreadsheets while juggling cover letters and interview prep in separate tabs. I wanted one place to manage the pipeline, see progress at a glance, and use AI where it actually saves time — drafting a first cover letter from a job description, not replacing thoughtful edits.
+I built JobTracker AI to solve a problem I kept hitting during job searches: tracking roles in spreadsheets while juggling cover letters and interview prep in separate tabs. I wanted one place to manage the pipeline, see progress at a glance, and use AI where it actually saves time — drafting a first cover letter, scoring resume fit, or letting an assistant update the tracker — not replacing thoughtful edits.
 
-The project let me practice a full SaaS stack end-to-end: Auth.js sessions, Prisma on PostgreSQL, Server Actions, rate limiting, and integrating two AI providers (Gemini for cover letters, OpenAI for resume scoring). Production deployment on Vercel + Neon surfaced real constraints — like wiring resume uploads through Vercel Blob instead of local disk — which made the demo honest and the architecture decisions clearer.
+The project is a full SaaS loop end-to-end: Auth.js sessions, Prisma on PostgreSQL, Server Actions, rate limiting, Gemini + OpenAI, a tool-calling agent, an MCP server over shared capabilities, evals, and production hardening on Vercel + Neon (including Blob for resumes). The [case study](./docs/case-study.md) walks through the architecture decisions in recruiter-friendly language.
+
+### Build story (GitHub arc)
+
+`Core product → AI agent → MCP → Evals → Job Match → Production hardening`
 
 ## Screenshots
 
@@ -168,7 +170,10 @@ prisma/
 ├── schema.prisma        # Database models
 └── migrations/          # SQL migrations
 docs/
-└── mcp-architecture.md  # MCP architecture notes
+├── case-study.md        # Portfolio / recruiter write-up
+├── mcp-architecture.md
+├── evals.md
+└── job-match.md
 ```
 
 ## MCP server (Phase 3)
@@ -310,10 +315,11 @@ After `npm run db:seed`: **demo@jobtracker.ai** / **password123** (3 sample appl
 npm test
 ```
 
-Unit tests cover validation schemas, AI error mappers, Gemini retry logic, and the in-memory rate limiter. CI runs unit tests, production build, and Playwright smoke tests against the live demo.
+Unit tests cover validation schemas, AI error mappers, Gemini retry logic, rate limiting, capabilities, and Job Match. CI runs unit tests, production build, and Playwright smoke tests against the live demo (including Job Match UI without calling Gemini).
 
 ```bash
-npm test          # unit tests
+npm test          # unit + eval tests
+npm run eval      # deterministic agent/MCP/job-match evals
 npm run test:e2e  # smoke tests (live demo by default)
 ```
 
