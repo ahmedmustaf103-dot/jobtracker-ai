@@ -23,7 +23,9 @@ See [evals/README.md](../evals/README.md).
 |-------|---------|--------|
 | Deterministic evals | `npm run eval` | **31/31 passed** |
 | Unit + evals | `npm test` | **119/119 passed** |
-| Live MCP smoke | `npm run eval:mcp` | **19/19 passed** |
+| Live MCP smoke | `npm run eval:mcp` / `verify:mcp` | **19/19 passed** |
+| Production E2E | `npm run test:e2e` | **5/5 passed** |
+| Production build | `npm run build` | **Passing** |
 
 ## Out of scope
 

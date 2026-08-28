@@ -10,7 +10,9 @@ Job searching usually means a spreadsheet for applications, a separate doc for c
 
 ## Solution
 
-**JobTracker AI** is a full-stack SaaS that keeps the application pipeline in one place and adds AI where it saves time: cover letters, resume feedback, an agent that can search jobs and update your tracker, and an on-demand resume ↔ job-description match score.
+JobTracker AI is a full-stack AI-powered job application platform that combines application tracking, AI-assisted cover letters, resume analysis, job search, an AI agent with tool calling, MCP integration, AI job matching, and automated evaluations.
+
+One signed-in workspace keeps the pipeline in one place and uses AI where it saves time — without replacing thoughtful edits.
 
 ## What I shipped (build story)
 
@@ -35,13 +37,11 @@ Git history intentionally reads in that order — useful for anyone reviewing th
 5. **Production honesty** — Resumes use Vercel Blob in prod (not local disk); CI builds and Playwright smoke the live demo.
 
 ```text
-Browser UI ──► Server Actions / API ──► Prisma ──► Neon Postgres
-                     │
-                     ├── Gemini (cover letters, agent, job match)
-                     ├── OpenAI (resume analyzer)
-                     └── Jobicy (remote job search)
+User → Next.js → AI agent → shared capabilities → services → Prisma → PostgreSQL
 
-MCP host (stdio) ──► MCP server ──► same capability handlers ──► Prisma / Gemini / Jobicy
+External AI client → MCP server → shared capabilities → existing services → Prisma → PostgreSQL
+
+Also: Gemini (cover letters, agent, job match) · OpenAI (resume) · Jobicy (remote jobs)
 ```
 
 ## Stack

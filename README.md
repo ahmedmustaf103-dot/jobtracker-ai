@@ -2,50 +2,240 @@
 
 ![CI](https://github.com/ahmedmustaf103-dot/jobtracker-ai/actions/workflows/ci.yml/badge.svg)
 
-**Live demo:** [https://jobtracker-ai-tau.vercel.app](https://jobtracker-ai-tau.vercel.app) · **GitHub:** [ahmedmustaf103-dot/jobtracker-ai](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
+**Live demo:** [https://jobtracker-ai-tau.vercel.app](https://jobtracker-ai-tau.vercel.app)  
+**GitHub:** [ahmedmustaf103-dot/jobtracker-ai](https://github.com/ahmedmustaf103-dot/jobtracker-ai)  
+**Case study:** [docs/case-study.md](./docs/case-study.md)
 
-> **CV one-liner:** JobTracker AI — full-stack job search SaaS (Next.js, Prisma, Auth.js) with a Gemini agent, MCP server, evals, and AI job-match scoring. [Live demo](https://jobtracker-ai-tau.vercel.app) + [GitHub](https://github.com/ahmedmustaf103-dot/jobtracker-ai).
+JobTracker AI is a full-stack AI-powered job application platform that combines application tracking, AI-assisted cover letters, resume analysis, job search, an AI agent with tool calling, MCP integration, AI job matching, and automated evaluations.
 
-**Portfolio write-up:** [docs/case-study.md](./docs/case-study.md)
-
-### CV / LinkedIn (copy-paste)
-
-- **JobTracker AI** — Full-stack job search SaaS: Auth.js + Prisma pipeline, Gemini cover letters & tool-calling assistant, shared MCP capabilities, deterministic evals, and Zod-validated resume↔JD match scores. Next.js 15, TypeScript, PostgreSQL/Neon, Vercel. [Live demo](https://jobtracker-ai-tau.vercel.app) · [GitHub](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
-
-Shorter version:
-
-- **JobTracker AI** — Next.js SaaS for tracking applications, with an AI agent, MCP server, evals, and job-match scoring. [Demo](https://jobtracker-ai-tau.vercel.app) · [Code](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
-
-Track every role from wishlist to offer — then use AI where it helps: cover letters, resume feedback, a job-search assistant, and on-demand match scores.
-
-### Try it now
-
-| | |
+| Try the demo | |
 |---|---|
 | **Demo login** | `demo@jobtracker.ai` / `password123` |
 | **Or** | [Create a free account](https://jobtracker-ai-tau.vercel.app/register) |
 
-> **Live demo:** Application tracking, timelines, AI cover letters, Job Match UI, assistant, and resume upload (Vercel Blob) work in production.
+---
 
-## Demo walkthrough (~60s)
+## Problem
 
-<video src="./docs/videos/demo-walkthrough.webm" controls width="100%">
-  Demo walkthrough — login, applications, timeline, cover letters
-</video>
+Job searching usually means a spreadsheet for applications, a separate doc for cover letters, and another tab for resume tweaks. Progress is hard to see, and AI tools are scattered — useful drafts, but nothing wired into the actual pipeline.
 
-Re-record after UI changes: `npm run record:demo`
+## Solution
 
-## Why I built this
+One signed-in workspace to track roles from wishlist to offer, with AI that helps where it saves time:
 
-I built JobTracker AI to solve a problem I kept hitting during job searches: tracking roles in spreadsheets while juggling cover letters and interview prep in separate tabs. I wanted one place to manage the pipeline, see progress at a glance, and use AI where it actually saves time — drafting a first cover letter, scoring resume fit, or letting an assistant update the tracker — not replacing thoughtful edits.
+- Draft cover letters from a job description
+- Analyze a resume for ATS-oriented feedback
+- Ask an assistant to search remote jobs and update your tracker
+- Score resume ↔ job-description fit on an application
+- Reuse the same business logic from a local MCP server
 
-The project is a full SaaS loop end-to-end: Auth.js sessions, Prisma on PostgreSQL, Server Actions, rate limiting, Gemini + OpenAI, a tool-calling agent, an MCP server over shared capabilities, evals, and production hardening on Vercel + Neon (including Blob for resumes). The [case study](./docs/case-study.md) walks through the architecture decisions in recruiter-friendly language.
-
-### Build story (GitHub arc)
+Build arc (visible in Git history):
 
 `Core product → AI agent → MCP → Evals → Job Match → Production hardening`
 
-## Screenshots
+---
+
+## Main features
+
+- **Auth** — email/password sign-up and sign-in (Auth.js v5, JWT sessions)
+- **Applications CRUD** — company, role, location, salary, URL, notes
+- **Status pipeline** — wishlist → applied → screening → interview → offer (inline updates)
+- **Filters & dashboard** — status filters, totals, pipeline breakdown, recent activity
+- **Settings** — display name and password
+- **AI cover letters** — Gemini-generated drafts, saved to the account
+- **AI resume analyzer** — PDF/DOCX upload with ATS-oriented scoring (OpenAI)
+- **AI Job Search Assistant** — Gemini tool-calling agent
+- **MCP server** — stdio tools over shared capabilities
+- **Evals** — deterministic regression checks + live MCP smoke
+- **AI Job Match** — on-demand resume ↔ JD score on application detail pages
+
+---
+
+## AI capabilities
+
+| Capability | Provider | Notes |
+|------------|----------|--------|
+| Cover letters | Google Gemini | Generate + save; rate-limited; safe client errors |
+| Resume analyzer | OpenAI | Local/dev + production (Blob storage on Vercel) |
+| Job search (agent/MCP) | Jobicy (+ Remotive fallback) | Remote openings |
+| Job Match | Gemini JSON → Zod | Score 0–100; gaps phrased as “not mentioned in resume” |
+| In-app agent | Gemini function calling | Tools mutate **your** applications only |
+
+---
+
+## AI agent + tool calling
+
+The in-app assistant (`/assistant`) uses Gemini function calling with five tools:
+
+| Tool | Purpose |
+|------|---------|
+| `search_remote_jobs` | Find remote openings |
+| `get_pipeline_stats` | Totals by status |
+| `search_applications` | Search the signed-in user’s applications |
+| `save_application` | Create a tracked application |
+| `update_application_status` | Update status with ownership checks |
+
+Tools route through **shared capability handlers** — the same layer used by MCP.
+
+---
+
+## MCP server
+
+A local **stdio** MCP server exposes JobTracker capabilities to hosts such as Cursor or MCP Inspector. It does **not** replace the in-app agent; it reuses the same handlers and Prisma services.
+
+| MCP tool | What it does |
+|----------|----------------|
+| `search_jobs` | Search remote openings |
+| `get_application_details` | Application + timeline (ownership-scoped) |
+| `get_applications` | List/search applications |
+| `generate_cover_letter` | Generate with Gemini and save |
+| `update_application` | Full field update (ownership-checked) |
+| `save_application` | Create an application |
+| `get_pipeline_stats` | Pipeline totals |
+
+Identity comes only from local env (`MCP_USER_EMAIL` or `MCP_USER_ID`) — never from tool arguments. Intended for a **trusted local host**.
+
+Full design: [docs/mcp-architecture.md](./docs/mcp-architecture.md)
+
+---
+
+## Evals and reliability
+
+Deterministic evals cover tool routing, ownership, invalid input, job-search relevance, cover-letter generate+save, Job Match validation, and MCP response formatting. Capability errors are sanitized so secrets and connection strings never reach clients.
+
+Details: [docs/evals.md](./docs/evals.md) · [evals/README.md](./evals/README.md)
+
+---
+
+## AI Job Match
+
+On an application detail page, compare your latest uploaded resume to a job description:
+
+- Score **0–100%** with recommendation band (strong / good / partial / weak)
+- Matching skills, gaps, experience notes, strengths, summary
+- Gemini JSON validated with **Zod**; recommendation derived from the score
+- Scores are **not** persisted (recomputed on demand)
+- Not exposed as an MCP/agent tool (by design)
+
+Details: [docs/job-match.md](./docs/job-match.md)
+
+---
+
+## Verified results
+
+Latest local verification (portfolio polish pass):
+
+| Check | Command | Result |
+|-------|---------|--------|
+| Unit + eval suite | `npm test` | **119/119** |
+| Deterministic evals | `npm run eval` | **31/31** |
+| MCP live smoke | `npm run verify:mcp` | **19/19** |
+| Production E2E | `npm run test:e2e` | **5/5** |
+| Production build | `npm run build` | **Passing** |
+
+CI also runs tests + build on every push to `main`, and Playwright smoke against the live demo.
+
+---
+
+## Architecture
+
+MCP and the in-app Gemini agent **reuse the same business logic** via shared capability handlers. No duplicated Prisma or AI orchestration for those tools.
+
+### In-app path
+
+```text
+User
+  ↓
+Next.js application (UI + Auth.js)
+  ↓
+AI agent (Gemini tool calling)
+  ↓
+Tools / shared capabilities
+  ↓
+Services
+  ↓
+Prisma
+  ↓
+PostgreSQL (Neon in production)
+```
+
+### MCP path
+
+```text
+External AI client (Cursor / MCP Inspector)
+  ↓
+MCP server (stdio)
+  ↓
+Shared capabilities
+  ↓
+Existing services → Prisma → PostgreSQL
+```
+
+```mermaid
+flowchart TB
+  subgraph app [In-app]
+    User[User] --> UI[Next.js App]
+    UI --> Agent[Gemini AI agent]
+    Agent --> Caps[Shared capabilities]
+  end
+
+  subgraph mcpPath [MCP]
+    Host[External AI client] --> MCP[MCP server stdio]
+    MCP --> Caps
+  end
+
+  Caps --> Services[Services]
+  Services --> Prisma[Prisma]
+  Prisma --> PG[(PostgreSQL)]
+
+  Caps --> Gemini[Gemini]
+  Caps --> Jobicy[Jobicy]
+  Services --> OpenAI[OpenAI resume analyzer]
+```
+
+| Concern | Approach |
+|---------|----------|
+| Auth | Auth.js v5, JWT sessions, middleware-protected routes |
+| Data | Prisma 6 + PostgreSQL; migrations on Vercel build |
+| AI | Gemini (+ OpenAI for resume); Zod validation where structured |
+| Rate limits | In-memory per-user limits on AI and upload actions |
+| Resume files | Local disk in dev; **Vercel Blob** in production |
+| Errors | Sanitized capability / Gemini messages — no secrets in clients |
+
+---
+
+## Tech stack
+
+| Area | Technology |
+|------|------------|
+| Framework | Next.js 15 (App Router, Server Actions), React 19 |
+| Language | TypeScript |
+| Runtime | Node.js |
+| Styling | Tailwind CSS v4 |
+| Database | PostgreSQL (Neon in production) |
+| ORM | Prisma 6 |
+| Auth | Auth.js (next-auth v5) |
+| Validation | Zod |
+| AI | Google Gemini 2.5 Flash, OpenAI |
+| Protocol | Model Context Protocol (MCP, stdio) |
+| Hosting / CI | Vercel, GitHub Actions |
+
+---
+
+## Documentation
+
+| Doc | Contents |
+|-----|----------|
+| [docs/case-study.md](./docs/case-study.md) | Portfolio write-up, LinkedIn/CV copy |
+| [docs/mcp-architecture.md](./docs/mcp-architecture.md) | MCP design, tools, security |
+| [docs/evals.md](./docs/evals.md) | Eval suite and sanitized errors |
+| [docs/job-match.md](./docs/job-match.md) | Scoring model and limitations |
+
+---
+
+## Screenshots & demo
+
+### Included
 
 ![Landing page](./docs/screenshots/landing.png)
 
@@ -53,157 +243,95 @@ The project is a full SaaS loop end-to-end: Auth.js sessions, Prisma on PostgreS
 
 ![Cover letter generator](./docs/screenshots/cover-letters.png)
 
-Re-capture after UI changes: `npm run screenshots` (uses the live demo by default).
+### Demo video
 
-## Architecture
+<video src="./docs/videos/demo-walkthrough.webm" controls width="100%">
+  Demo walkthrough — login, applications, timeline, cover letters
+</video>
 
-```mermaid
-flowchart TB
-  subgraph client [Browser]
-    UI[Next.js App Router UI]
-  end
+Re-capture: `npm run screenshots` · Re-record: `npm run record:demo`
 
-  subgraph vercel [Vercel]
-    SA[Server Actions]
-    API[Route Handlers]
-    MW[Middleware + Auth.js]
-  end
+### Recommended additions (add manually — not generated)
 
-  subgraph data [Data]
-    PG[(PostgreSQL / Neon)]
-    Prisma[Prisma ORM]
-  end
+These are **not** in the repo yet. Capture from the live demo or local app and drop into `docs/screenshots/`:
 
-  subgraph ai [AI providers]
-    Gemini[Gemini 2.5 Flash — cover letters + agent]
-    OpenAI[OpenAI — resume analyzer local]
-    Jobicy[Jobicy API — remote jobs]
-  end
+| Suggested file | What to capture |
+|----------------|-----------------|
+| `assistant.png` | AI Assistant chat with a tool call / job results |
+| `job-match.png` | Application detail — AI Job Match panel (score or empty/input state) |
+| `mcp-inspector.png` | MCP Inspector connected to `npm run mcp` |
+| `evals.png` | Terminal output of `npm run eval` (31/31) |
 
-  subgraph mcp [MCP stdio]
-    McpServer[JobTracker MCP server]
-    Caps[Shared capability handlers]
-  end
+See [docs/screenshots/README.md](./docs/screenshots/README.md).
 
-  UI --> MW
-  MW --> SA
-  MW --> API
-  SA --> Prisma
-  API --> Prisma
-  Prisma --> PG
-  SA --> Gemini
-  SA --> OpenAI
-  API --> Gemini
-  API --> Jobicy
-  API --> Caps
-  McpServer --> Caps
-  Caps --> Prisma
-  Caps --> Gemini
-  Caps --> Jobicy
-```
-
-| Concern | Approach |
-|---------|----------|
-| Auth | Auth.js v5, JWT sessions, protected routes via middleware |
-| Data | Prisma 6 + PostgreSQL; migrations run on Vercel build |
-| AI | Gemini with retry/fallback models; generic errors to clients |
-| Rate limits | In-memory per-user limits on AI and upload actions |
-| Resume files | Local disk in dev; **Vercel Blob** in production |
-
-## Features
-
-- **Auth** — email/password sign up & sign in (Auth.js v5, JWT sessions)
-- **Applications CRUD** — create, edit, delete roles with company, salary, notes
-- **Status workflow** — wishlist → applied → screening → interview → offer, with quick inline updates
-- **Filters** — filter the list by any status via URL params
-- **Dashboard** — totals, pipeline breakdown, recent activity, onboarding for new users
-- **Settings** — update display name, change password
-- **AI cover letters** — generate tailored cover letters with **Gemini 2.5 Flash** (Google AI Studio free tier)
-- **AI Job Search Assistant** — Gemini agent with 5 tools (remote job search, pipeline stats, application search/save/status updates)
-- **MCP server** — stdio MCP tools reusing the same capabilities (jobs, applications, cover letters)
-- **Evals** — automated capability/agent/MCP checks (`npm run eval`) plus live MCP smoke
-- **AI Job Match** — on-demand resume ↔ job description score on application detail pages
-- **AI resume analyzer** — upload PDF/DOCX for ATS score, strengths, weaknesses, and keyword tips (OpenAI)
-
-## Stack
-
-| Layer | Technology |
-|--------|------------|
-| Framework | Next.js 15 (App Router, Server Actions) |
-| Language | TypeScript |
-| Styling | Tailwind CSS v4 |
-| Database | PostgreSQL |
-| ORM | Prisma 6 |
-| Auth | Auth.js (next-auth v5) |
-| Validation | Zod |
-| AI (cover letters) | Google Gemini 2.5 Flash |
-| AI (resume) | OpenAI API |
-| MCP | `@modelcontextprotocol/server` (stdio) |
+---
 
 ## Project structure
 
 ```
 src/
-├── app/
-│   ├── (marketing)/     # Public landing page
-│   ├── (auth)/          # Login & register
-│   ├── (dashboard)/     # Protected app (dashboard, applications, AI tools)
-│   └── api/             # Route handlers (e.g. POST /api/cover-letters/generate)
-├── components/
-│   ├── ui/              # Buttons, inputs, cards, confirm dialog
-│   ├── layout/          # Headers, sidebar, mobile shell
-│   ├── marketing/       # Landing page sections
-│   ├── cover-letters/   # Cover letter generator UI
-│   └── resume-analyzer/ # Resume upload & analysis UI
+├── app/                 # Marketing, auth, dashboard routes + API
+├── components/          # UI, applications, cover letters, resume analyzer
 ├── lib/
-│   ├── agent/           # Gemini job-search agent (Phase 2)
-│   ├── capabilities/    # Shared handlers used by agent + MCP
+│   ├── agent/           # Gemini job-search agent
+│   ├── capabilities/    # Shared handlers (agent + MCP)
+│   ├── job-match/       # Job Match generation + JD resolution
 │   └── …                # db, auth, gemini, openai, rate-limit
-├── server/
-│   ├── actions/         # Server Actions
-│   └── services/        # Data / business logic
-├── types/               # Shared TypeScript types
+├── server/actions/      # Server Actions
+├── server/services/     # Prisma / business logic
 └── validations/         # Zod schemas
-mcp/
-└── src/server.ts        # MCP stdio entrypoint (Phase 3)
-prisma/
-├── schema.prisma        # Database models
-└── migrations/          # SQL migrations
-docs/
-├── case-study.md        # Portfolio / recruiter write-up
-├── mcp-architecture.md
-├── evals.md
-└── job-match.md
+mcp/src/server.ts        # MCP stdio entrypoint
+evals/                   # Deterministic eval suite
+docs/                    # Architecture + portfolio docs
+prisma/                  # Schema + migrations
 ```
 
-## MCP server (Phase 3)
+---
 
-The MCP server exposes JobTracker capabilities to local MCP hosts over **stdio**. It reuses the same Prisma services and job/cover-letter logic as the app — it does **not** replace the Gemini assistant UI.
-
-See [docs/mcp-architecture.md](./docs/mcp-architecture.md) for the full diagram.
-
-### Available tools
-
-| Tool | What it does |
-|------|----------------|
-| `search_jobs` | Search remote openings (Jobicy + Remotive fallback) |
-| `get_application_details` | Load a tracked application + timeline (ownership-scoped) |
-| `get_applications` | List/search the configured user's applications |
-| `generate_cover_letter` | Generate with Gemini and **save** (same as UI) |
-| `update_application` | Full field update with optional status (ownership-checked) |
-| `save_application` | Create a tracked application |
-| `get_pipeline_stats` | Totals by status + recent applications |
-
-### Run locally
+## Getting started
 
 ```bash
-# In .env / .env.local — pick one identity for the local MCP process
-MCP_USER_EMAIL=demo@jobtracker.ai
-# or MCP_USER_ID=<cuid>
+npm install
+cp .env.example .env
+# Fill DATABASE_URL, AUTH_SECRET, AUTH_URL, GEMINI_API_KEY
+# (OPENAI_API_KEY for resume analyzer; MCP_USER_EMAIL for MCP)
+npm run db:migrate
+npm run db:seed          # optional — demo@jobtracker.ai / password123
+npm run dev
+```
 
-npm run mcp              # stdio server (for MCP hosts)
-npm run mcp:inspect      # open MCP Inspector
-npm run verify:mcp       # automated connect + tool checks
+Open [http://localhost:3000](http://localhost:3000).
+
+Prefer putting the real Neon URL in `.env.local` (overrides `.env`). `npm run build` loads `.env` then `.env.local` so a stale local `DATABASE_URL` does not break production builds.
+
+### Environment variables
+
+Copy from [`.env.example`](./.env.example). Placeholders only — never commit real secrets.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `AUTH_SECRET` | Yes | `openssl rand -base64 32` |
+| `AUTH_URL` | Yes | App URL (`http://localhost:3000` locally) |
+| `GEMINI_API_KEY` | Cover letters / agent / Job Match | Google AI Studio key (`AQ.…` or `AIzaSy…`) |
+| `GEMINI_MODEL` | No | Defaults to `gemini-2.5-flash` |
+| `OPENAI_API_KEY` | Resume analyzer | OpenAI API key |
+| `OPENAI_MODEL` | No | Defaults to `gpt-4o-mini` |
+| `NEXT_PUBLIC_APP_URL` | No | Public URL for metadata |
+| `NEXT_PUBLIC_RESUME_ANALYZER_ENABLED` | No | `"true"` to enable uploads in production |
+| `BLOB_READ_WRITE_TOKEN` | Prod resumes | Injected by Vercel Blob |
+| `MCP_USER_EMAIL` | MCP | Local user the MCP process acts as |
+| `MCP_USER_ID` | MCP | Alternative to `MCP_USER_EMAIL` |
+
+### MCP setup
+
+```bash
+# .env / .env.local
+MCP_USER_EMAIL=demo@jobtracker.ai
+
+npm run mcp              # stdio server
+npm run mcp:inspect      # MCP Inspector UI
+npm run verify:mcp       # automated 19 checks
 ```
 
 Example Cursor / Claude Desktop config:
@@ -223,174 +351,37 @@ Example Cursor / Claude Desktop config:
 }
 ```
 
-### MCP security
-
-- Identity is **only** `MCP_USER_ID` or `MCP_USER_EMAIL` on the local process — not caller-supplied user ids.
-- All DB tools use existing `userId`-scoped services; other users’ rows are not returned or updated.
-- Tool responses never include env vars or API keys.
-- Intended for a **trusted local host**. Shared remote MCP auth is out of scope for Phase 3.
-
-## Evals & error handling (Phase 4)
-
-Automated checks for tool routing, ownership, invalid input, job-search relevance, cover-letter generate+save, and MCP response formatting.
+### Useful commands
 
 ```bash
-npm run eval        # deterministic eval suite
-npm run eval:mcp    # live MCP smoke (alias of verify:mcp)
-npm test            # full unit + eval suite
+npm test                 # 119 unit + eval tests
+npm run eval             # 31 deterministic evals
+npm run verify:mcp       # 19 MCP checks
+npm run build            # production build
+npm run test:e2e         # 5 Playwright smokes (live demo by default)
 ```
 
-Details: [docs/evals.md](./docs/evals.md) · [evals/README.md](./evals/README.md)
+---
 
-Capability failures are sanitized so secrets/connection strings never appear in tool or agent error payloads.
-
-## AI Job Match
-
-On application detail pages, compare your latest resume to a job description for a 0–100% match score, skills overlap, gaps, and a recommendation.
-
-See [docs/job-match.md](./docs/job-match.md) for the scoring model and limitations.
-
-## Getting started
-
-```bash
-npm install
-cp .env.example .env
-# Set DATABASE_URL, AUTH_SECRET, AUTH_URL, GEMINI_API_KEY (and OPENAI_API_KEY for resume analyzer) in .env
-npm run db:migrate
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-### Environment variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string (Neon, Supabase, or local) |
-| `AUTH_SECRET` | Yes | Session secret — generate with `openssl rand -base64 32` |
-| `AUTH_URL` | Yes | App URL (`http://localhost:3000` locally) |
-| `GEMINI_API_KEY` | Cover letters | **Google AI Studio** key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — `AQ.…` (new) or `AIzaSy…` (legacy) |
-| `GEMINI_MODEL` | No | Gemini model override (defaults to `gemini-2.5-flash`) |
-| `OPENAI_API_KEY` | Resume analyzer | OpenAI API key for resume analysis |
-| `OPENAI_MODEL` | No | OpenAI model override (defaults to `gpt-4o-mini`) |
-| `NEXT_PUBLIC_APP_URL` | No | Public URL used in site metadata |
-| `NEXT_PUBLIC_RESUME_ANALYZER_ENABLED` | No | Set `"true"` to enable resume upload in production (needs cloud storage) |
-| `MCP_USER_EMAIL` | MCP | Email of the local user the MCP server acts as (alternative to `MCP_USER_ID`) |
-| `MCP_USER_ID` | MCP | User id the local MCP server acts as (alternative to `MCP_USER_EMAIL`) |
-
-### Cover letter API
-
-Authenticated users can also generate via HTTP:
-
-```bash
-POST /api/cover-letters/generate
-Content-Type: application/json
-
-{
-  "company": "Northwind Labs",
-  "role": "Senior Frontend Engineer",
-  "jobDescription": "Paste the full job description here..."
-}
-```
-
-Returns `{ "content": "..." }` or `{ "error": "..." }`. Requires a signed-in session cookie.
-
-### Demo account
-
-After `npm run db:seed`: **demo@jobtracker.ai** / **password123** (3 sample applications).
-
-### Database commands
-
-| Command | Description |
-|---------|-------------|
-| `npm run db:migrate` | Apply migrations (development) |
-| `npm run db:migrate:deploy` | Apply migrations (production) |
-| `npm run db:push` | Push schema without migration files |
-| `npm run db:studio` | Open Prisma Studio |
-| `npm run db:seed` | Seed demo user + sample applications |
-
-### Tests
-
-```bash
-npm test
-```
-
-Unit tests cover validation schemas, AI error mappers, Gemini retry logic, rate limiting, capabilities, and Job Match. CI runs unit tests, production build, and Playwright smoke tests against the live demo (including Job Match UI without calling Gemini).
-
-```bash
-npm test          # unit + eval tests
-npm run eval      # deterministic agent/MCP/job-match evals
-npm run test:e2e  # smoke tests (live demo by default)
-```
-
-### Fix Gemini on production
-
-Cover letters need a **Google AI Studio** key. New keys start with **`AQ.`** (auth keys); older keys start with **`AIzaSy`**. Both work.
-
-1. Create a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-2. Set `GEMINI_API_KEY=AQ.…` (or `AIzaSy…`) in `.env`
-3. Verify locally:
-
-```bash
-npm run verify:gemini
-```
-
-4. Sync to Vercel (requires `npx vercel login` first):
-
-```bash
-npm run vercel:sync-gemini
-npx vercel deploy --prod
-```
-
-5. Confirm: `curl https://jobtracker-ai-tau.vercel.app/api/health` should show `"formatValid": true`
-
-## Deployment (Vercel)
+## Deployment
 
 **Production:** [https://jobtracker-ai-tau.vercel.app](https://jobtracker-ai-tau.vercel.app)
 
-Hosted on Vercel with Neon PostgreSQL. Migrations run automatically during build (`prisma migrate deploy`).
+Hosted on **Vercel** with **Neon** PostgreSQL. Build runs `prisma generate`, `prisma migrate deploy`, and `next build` (via `scripts/run-build.mjs`).
 
-To redeploy after pushing to GitHub:
+Resume files in production use [Vercel Blob](https://vercel.com/docs/storage/vercel-blob). See `npm run vercel:setup-blob` for setup steps.
 
-```bash
-git push origin main   # if Git integration is connected
-# or
-npx vercel deploy --prod
-```
+---
 
-### Manual setup (first time)
+## CV / LinkedIn (copy-paste)
 
-1. Push the repo to GitHub and import it in [Vercel](https://vercel.com/new).
-2. Provision PostgreSQL (e.g. [Neon](https://neon.tech)) and copy the **pooled** connection string.
-3. Set environment variables in Vercel:
-   - `DATABASE_URL` — Neon pooled Postgres URL
-   - `AUTH_SECRET` — `openssl rand -base64 32`
-   - `AUTH_URL` — your production URL (e.g. `https://jobtracker-ai-tau.vercel.app`)
-   - `NEXT_PUBLIC_APP_URL` — same as `AUTH_URL`
-   - `GEMINI_API_KEY` — from [Google AI Studio](https://aistudio.google.com/apikey); new keys use **`AQ.`** format, legacy keys use **`AIzaSy`**
-   - `OPENAI_API_KEY` — for resume analyzer (optional if you disable that feature)
-4. Deploy. Build runs `prisma generate`, `prisma migrate deploy`, and `next build`.
-5. Seed the demo account (optional):
+- **JobTracker AI** — Full-stack AI job application platform: Auth.js + Prisma pipeline, Gemini cover letters & tool-calling agent, shared MCP capabilities, deterministic evals, and Zod-validated resume↔JD match scores. Next.js 15, TypeScript, PostgreSQL/Neon, Vercel. [Demo](https://jobtracker-ai-tau.vercel.app) · [GitHub](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
 
-```bash
-DATABASE_URL="<production-url>" npm run db:seed
-```
+Shorter:
 
-### Resume uploads (Vercel Blob)
+- **JobTracker AI** — Next.js SaaS for tracking applications, with an AI agent, MCP server, evals, and job-match scoring. [Demo](https://jobtracker-ai-tau.vercel.app) · [Code](https://github.com/ahmedmustaf103-dot/jobtracker-ai)
 
-Production resume files use [**Vercel Blob**](https://vercel.com/docs/storage/vercel-blob). Local development uses `storage/uploads/resumes/`.
-
-**Setup:**
-
-```bash
-npm run vercel:setup-blob   # prints steps
-```
-
-1. Create a Blob store in the [Vercel project Storage tab](https://vercel.com) and link it to this app
-2. Redeploy — Vercel injects `BLOB_READ_WRITE_TOKEN` automatically
-3. Confirm: `curl https://jobtracker-ai-tau.vercel.app/api/health` → `"storage": "blob"`
-
-Resume **analysis** still requires `OPENAI_API_KEY` with available quota.
+---
 
 ## License
 

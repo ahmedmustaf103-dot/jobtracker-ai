@@ -6,6 +6,28 @@ Expose existing JobTracker capabilities to MCP hosts (Cursor, Claude Desktop, In
 
 ## Diagram
 
+In-app agent and MCP share one capability layer — no duplicated Prisma / job-search / cover-letter logic.
+
+```text
+User
+  ↓
+Next.js application
+  ↓
+AI agent (Gemini tool calling)
+  ↓
+Tools / shared capabilities
+  ↓
+Services → Prisma → PostgreSQL
+
+External AI client (Cursor / Inspector)
+  ↓
+MCP server (stdio)
+  ↓
+Shared capabilities
+  ↓
+Existing services → Prisma → PostgreSQL
+```
+
 ```text
 MCP host (Cursor / Inspector)
         │ stdio JSON-RPC
