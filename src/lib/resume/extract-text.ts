@@ -1,7 +1,15 @@
 import mammoth from "mammoth";
-import { PDFParse } from "pdf-parse";
 
 import type { AllowedResumeMime } from "@/validations/resume";
+
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  // unpdf ships a serverless PDF.js build (no DOMMatrix / @napi-rs/canvas).
+  // pdf-parse v2 crashes on Vercel with ReferenceError: DOMMatrix is not defined.
+  const { extractText, getDocumentProxy } = await import("unpdf");
+  const pdf = await getDocumentProxy(new Uint8Array(buffer));
+  const { text } = await extractText(pdf, { mergePages: true });
+  return Array.isArray(text) ? text.join("\n") : text;
+}
 
 export async function extractResumeText(
   buffer: Buffer,
@@ -9,17 +17,26 @@ export async function extractResumeText(
 ): Promise<string> {
   let text: string;
 
-  if (mimeType === "application/pdf") {
-    const parser = new PDFParse({ data: buffer });
-    try {
-      const result = await parser.getText();
-      text = result.text;
-    } finally {
-      await parser.destroy();
+  try {
+    if (mimeType === "application/pdf") {
+      text = await extractPdfText(buffer);
+    } else {
+      const result = await mammoth.extractRawText({ buffer });
+      text = result.value;
     }
-  } else {
-    const result = await mammoth.extractRawText({ buffer });
-    text = result.value;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (
+      message.toLowerCase().includes("extract") ||
+      message.toLowerCase().includes("invalid pdf")
+    ) {
+      throw error instanceof Error
+        ? error
+        : new Error("Could not extract text from this file.");
+    }
+    throw new Error(
+      "Could not extract text from this file. Try a different PDF or DOCX.",
+    );
   }
 
   const normalized = text.replace(/\s+/g, " ").trim();

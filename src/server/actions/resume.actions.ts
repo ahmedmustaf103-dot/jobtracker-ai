@@ -50,8 +50,20 @@ async function runAnalysis(
 }
 
 function handleAiError(error: unknown): string {
-  if (error instanceof Error && error.message.includes("extract")) {
-    return error.message;
+  if (error instanceof Error) {
+    const lower = error.message.toLowerCase();
+    if (
+      lower.includes("extract") ||
+      lower.includes("invalid pdf") ||
+      lower.includes("dommatrix") ||
+      lower.includes("docx")
+    ) {
+      return error.message.includes("extract") ||
+        error.message.includes("PDF") ||
+        error.message.includes("DOCX")
+        ? error.message
+        : "Could not extract text from this file. Try a different PDF or DOCX.";
+    }
   }
   console.error("Resume AI error:", error);
   return getOpenAIErrorMessage(error);
